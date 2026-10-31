@@ -187,3 +187,7 @@ These results confirm A as the better experience. Both still need testing on rea
 
 ## 13. Open questions
 1. Should the palette tone rules be tuned? For example, pure #00FF00 currently reads "Green · light", because saturated green is naturally very light. Decide during palette review with colorblind testers.
+   - **Proposed fix (not implemented):** in `ColorNamer.toneOf`, (a) measure lightness against the sRGB gamut's most saturated color at the sample's hue, not against `Family.typicalLightness`, so pure green, cyan and yellow get no tone; (b) drop the tone when the matched name already says it ("Light green", "Dark red"), using a per-entry flag; (c) never show "dark" for Brown. On the 949 XKCD survey colors this cuts colors with a tone from 370 to 244 and redundant tones from 145 to 0.
+   - **Known weakness:** green hues have a high gamut lightness, so ordinary mid greens (for example Material green `#4CAF50`) read "deep" until the dark threshold is tuned for hues 100°–200°. Tune with colorblind testers.
+   - **Tests to update if adopted:** `ColorNamerTest.tones follow lightness` (`#FADADD` would have no tone) and add `#00FF00`, `#00FFFF`, `#FFFF00`, `#4CAF50`.
+   - Details, prototype numbers and the smaller alternative (suppress redundant tones only) are in [docs/research/palette-review.md](docs/research/palette-review.md) §4.

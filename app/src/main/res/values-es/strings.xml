@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="a11y_description">Permite que DaltonPick lea los colores de tu pantalla para nombrarlos. Las imágenes de la pantalla se quedan en tu dispositivo y nunca se guardan.</string>
+
+    <string name="spike_title">DaltonPick: versión de prueba M0</string>
+    <string name="status_overlay">Mostrar sobre otras apps: %1$s</string>
+    <string name="status_a11y">Servicio de accesibilidad: %1$s</string>
+    <string name="status_on">activado</string>
+    <string name="status_off">desactivado</string>
+
+    <string name="btn_grant_overlay">Permitir mostrar sobre otras apps</string>
+    <string name="btn_open_a11y">Abrir ajustes de accesibilidad</string>
+    <string name="btn_start_a11y">Iniciar lupa (captura por accesibilidad)</string>
+    <string name="btn_start_projection">Iniciar lupa (captura por grabación de pantalla)</string>
+    <string name="btn_stop">Detener lupa</string>
+
+    <string name="opt_hide_before_capture">Ocultar la lupa antes de capturar</string>
+    <string name="opt_extra_delay">Retraso extra de captura: %1$d ms</string>
+    <string name="opt_tab_right">Pestaña en el borde derecho</string>
+
+    <string name="last_capture">Última captura: %1$s</string>
+    <string name="no_capture_yet">ninguna aún</string>
+    <string name="swatches_title">Muestras de prueba. El nombre debajo de cada una es lo que debería decir la lupa.</string>
+
+    <string name="a11y_not_enabled">Primero activa el servicio de accesibilidad de DaltonPick.</string>
+    <string name="overlay_not_granted">Primero permite mostrar sobre otras apps.</string>
+    <string name="protected_content">Esta app oculta su contenido</string>
+    <string name="capture_failed">Falló la captura: %1$s</string>
+
+    <string name="notif_channel">Captura de pantalla</string>
+    <string name="notif_title">DaltonPick está listo</string>
+    <string name="notif_text">Desliza la pestaña del borde para abrir la lupa.</string>
+    <string name="notif_stop">Detener</string>
+</resources>

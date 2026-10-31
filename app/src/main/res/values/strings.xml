@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">DaltonPick</string>
+    <string name="a11y_description">Lets DaltonPick read the colors on your screen so it can name them. Screen images stay on your device and are never saved.</string>
+
+    <string name="spike_title">DaltonPick: M0 test build</string>
+    <string name="status_overlay">Display over other apps: %1$s</string>
+    <string name="status_a11y">Accessibility service: %1$s</string>
+    <string name="status_on">on</string>
+    <string name="status_off">off</string>
+
+    <string name="btn_grant_overlay">Allow display over other apps</string>
+    <string name="btn_open_a11y">Open Accessibility settings</string>
+    <string name="btn_start_a11y">Start lens (Accessibility capture)</string>
+    <string name="btn_start_projection">Start lens (screen-recording capture)</string>
+    <string name="btn_stop">Stop lens</string>
+
+    <string name="opt_hide_before_capture">Hide overlay before capture</string>
+    <string name="opt_extra_delay">Extra capture delay: %1$d ms</string>
+    <string name="opt_tab_right">Tab on right edge</string>
+
+    <string name="last_capture">Last capture: %1$s</string>
+    <string name="no_capture_yet">none yet</string>
+    <string name="swatches_title">Test swatches. The name under each one is what the lens should say.</string>
+
+    <string name="a11y_not_enabled">Turn on the DaltonPick accessibility service first.</string>
+    <string name="overlay_not_granted">Allow display over other apps first.</string>
+    <string name="protected_content">This app hides its content</string>
+    <string name="capture_failed">Capture failed: %1$s</string>
+
+    <string name="notif_channel">Screen capture</string>
+    <string name="notif_title">DaltonPick is ready</string>
+    <string name="notif_text">Pull the edge tab to open the lens.</string>
+    <string name="notif_stop">Stop</string>
+</resources>

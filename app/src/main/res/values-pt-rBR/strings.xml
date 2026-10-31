@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="a11y_description">Permite que o DaltonPick leia as cores da sua tela para dar nome a elas. As imagens da tela ficam no seu aparelho e nunca são salvas.</string>
+
+    <string name="spike_title">DaltonPick: versão de teste M0</string>
+    <string name="status_overlay">Sobrepor a outros apps: %1$s</string>
+    <string name="status_a11y">Serviço de acessibilidade: %1$s</string>
+    <string name="status_on">ativado</string>
+    <string name="status_off">desativado</string>
+
+    <string name="btn_grant_overlay">Permitir sobrepor a outros apps</string>
+    <string name="btn_open_a11y">Abrir configurações de acessibilidade</string>
+    <string name="btn_start_a11y">Abrir lupa (captura por acessibilidade)</string>
+    <string name="btn_start_projection">Abrir lupa (captura por gravação de tela)</string>
+    <string name="btn_stop">Fechar lupa</string>
+
+    <string name="opt_hide_before_capture">Esconder a lupa antes de capturar</string>
+    <string name="opt_extra_delay">Atraso extra na captura: %1$d ms</string>
+    <string name="opt_tab_right">Aba na borda direita</string>
+
+    <string name="last_capture">Última captura: %1$s</string>
+    <string name="no_capture_yet">nenhuma ainda</string>
+    <string name="swatches_title">Amostras de teste. O nome embaixo de cada uma é o que a lupa deve dizer.</string>
+
+    <string name="a11y_not_enabled">Ative primeiro o serviço de acessibilidade do DaltonPick.</string>
+    <string name="overlay_not_granted">Permita primeiro sobrepor a outros apps.</string>
+    <string name="protected_content">Este app esconde o conteúdo</string>
+    <string name="capture_failed">Falha na captura: %1$s</string>
+
+    <string name="notif_channel">Captura de tela</string>
+    <string name="notif_title">DaltonPick está pronto</string>
+    <string name="notif_text">Puxe a aba da borda para abrir a lupa.</string>
+    <string name="notif_stop">Parar</string>
+</resources>

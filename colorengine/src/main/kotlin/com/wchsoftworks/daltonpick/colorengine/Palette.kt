@@ -39,7 +39,7 @@ class Palette(val entries: List<PaletteEntry>) {
 
     companion object {
         /** Palette format version; bump when names or anchors change. */
-        const val VERSION = 1
+        const val VERSION = 2
 
         val Default: Palette by lazy { Palette(DefaultPaletteData.entries) }
     }
@@ -55,20 +55,19 @@ internal object DefaultPaletteData {
 
     val entries: List<PaletteEntry> = listOf(
         // Reds
-        c("red", 0xFF0000, Family.RED, "Red", "Rojo", "Vermelho"),
+        c("red", 0xEE0000, Family.RED, "Red", "Rojo", "Vermelho"),
         c("dark_red", 0x8B0000, Family.RED, "Dark red", "Rojo oscuro", "Vermelho-escuro"),
-        c("blood_red", 0x5E0000, Family.RED, "Blood red", "Rojo sangre", "Vermelho-sangue"),
         c("crimson", 0xDC143C, Family.RED, "Crimson", "Carmesí", "Carmesim"),
         c("brick_red", 0xB03A2E, Family.RED, "Brick red", "Rojo ladrillo", "Vermelho-tijolo"),
-        c("burgundy", 0x800020, Family.RED, "Burgundy", "Burdeos", "Bordô"),
+        c("burgundy", 0x6A0A2A, Family.RED, "Burgundy", "Burdeos", "Bordô"),
         c("wine", 0x722F37, Family.RED, "Wine", "Vino", "Vinho"),
         c("tomato_red", 0xFF6347, Family.RED, "Tomato red", "Rojo tomate", "Vermelho-tomate"),
         c("coral_red", 0xFF4040, Family.RED, "Coral red", "Rojo coral", "Vermelho-coral"),
 
         // Oranges
-        c("orange", 0xFF8000, Family.ORANGE, "Orange", "Naranja", "Laranja"),
+        c("orange", 0xFF9000, Family.ORANGE, "Orange", "Naranja", "Laranja"),
         c("burnt_orange", 0xCC5500, Family.ORANGE, "Burnt orange", "Naranja quemado", "Laranja-queimado"),
-        c("neon_orange", 0xFF5F1F, Family.ORANGE, "Neon orange", "Naranja neón", "Laranja-neon"),
+        c("red_orange", 0xFF5F1F, Family.ORANGE, "Red-orange", "Naranja rojizo", "Laranja-avermelhado"),
         c("amber", 0xFFBF00, Family.ORANGE, "Amber", "Ámbar", "Âmbar"),
         c("coral", 0xFF7F50, Family.ORANGE, "Coral", "Coral", "Coral"),
         c("peach", 0xFFCBA4, Family.ORANGE, "Peach", "Durazno", "Pêssego"),
@@ -86,11 +85,12 @@ internal object DefaultPaletteData {
         c("cream", 0xFFFDD0, Family.YELLOW, "Cream", "Crema", "Creme"),
 
         // Greens
-        c("green", 0x008000, Family.GREEN, "Green", "Verde", "Verde"),
+        c("green", 0x12A01C, Family.GREEN, "Green", "Verde", "Verde"),
         c("bright_green", 0x00FF00, Family.GREEN, "Bright green", "Verde brillante", "Verde-vivo"),
-        c("lime_green", 0x32CD32, Family.GREEN, "Lime green", "Verde lima", "Verde-limão"),
         c("dark_green", 0x005000, Family.GREEN, "Dark green", "Verde oscuro", "Verde-escuro"),
         c("forest_green", 0x228B22, Family.GREEN, "Forest green", "Verde bosque", "Verde-floresta"),
+        c("lime", 0xA8F50A, Family.GREEN, "Lime", "Verde limón", "Verde-lima"),
+        c("lime_green", 0x32CD32, Family.GREEN, "Lime green", "Verde lima", "Verde-limão"),
         c("grass_green", 0x5DA130, Family.GREEN, "Grass green", "Verde césped", "Verde-grama"),
         c("emerald", 0x50C878, Family.GREEN, "Emerald green", "Verde esmeralda", "Verde-esmeralda"),
         c("jade", 0x00A86B, Family.GREEN, "Jade", "Jade", "Jade"),
@@ -98,6 +98,7 @@ internal object DefaultPaletteData {
         c("bottle_green", 0x006A4E, Family.GREEN, "Bottle green", "Verde botella", "Verde-garrafa"),
         c("hunter_green", 0x355E3B, Family.GREEN, "Hunter green", "Verde cazador", "Verde-caçador"),
         c("olive_green", 0x808000, Family.GREEN, "Olive green", "Verde oliva", "Verde-oliva"),
+        c("very_dark_green", 0x022B0C, Family.GREEN, "Very dark green", "Verde muy oscuro", "Verde-muito-escuro"),
         c("dark_olive", 0x556B2F, Family.GREEN, "Dark olive green", "Verde oliva oscuro", "Verde-oliva-escuro"),
         c("army_green", 0x4B5320, Family.GREEN, "Army green", "Verde militar", "Verde-militar"),
         c("moss_green", 0x8A9A5B, Family.GREEN, "Moss green", "Verde musgo", "Verde-musgo"),
@@ -105,26 +106,26 @@ internal object DefaultPaletteData {
         c("pistachio", 0x93C572, Family.GREEN, "Pistachio", "Pistacho", "Pistache"),
         c("yellow_green", 0x9ACD32, Family.GREEN, "Yellow-green", "Verde amarillento", "Verde-amarelado"),
         c("light_green", 0x90EE90, Family.GREEN, "Light green", "Verde claro", "Verde-claro"),
-        c("mint_green", 0xAAF0D1, Family.GREEN, "Mint green", "Verde menta", "Verde-menta"),
+        c("mint_green", 0x9FF5B2, Family.GREEN, "Mint green", "Verde menta", "Verde-menta"),
         c("pale_green", 0xC1E1C1, Family.GREEN, "Pale green", "Verde pálido", "Verde-pálido"),
         c("seafoam", 0x71D9A5, Family.GREEN, "Seafoam green", "Verde agua", "Verde-água"),
 
         // Teals and cyans
         c("teal", 0x008080, Family.TEAL, "Teal", "Verde azulado", "Verde-azulado"),
         c("petrol_blue", 0x005060, Family.TEAL, "Petrol blue", "Azul petróleo", "Azul-petróleo"),
-        c("turquoise", 0x40E0D0, Family.TEAL, "Turquoise", "Turquesa", "Turquesa"),
-        c("dark_turquoise", 0x00CED1, Family.TEAL, "Dark turquoise", "Turquesa oscuro", "Turquesa-escuro"),
+        c("turquoise", 0x20D0BE, Family.TEAL, "Turquoise", "Turquesa", "Turquesa"),
         c("cyan", 0x00FFFF, Family.TEAL, "Cyan", "Cian", "Ciano"),
         c("aquamarine", 0x7FFFD4, Family.TEAL, "Aquamarine", "Aguamarina", "Água-marinha"),
         c("pale_turquoise", 0xAFEEEE, Family.TEAL, "Pale turquoise", "Turquesa pálido", "Turquesa-claro"),
         c("light_cyan", 0xE0FFFF, Family.TEAL, "Light cyan", "Cian claro", "Ciano-claro"),
 
         // Blues
-        c("blue", 0x0000FF, Family.BLUE, "Blue", "Azul", "Azul"),
+        c("blue", 0x0A3CE0, Family.BLUE, "Blue", "Azul", "Azul"),
         c("bright_blue", 0x0096FF, Family.BLUE, "Bright blue", "Azul brillante", "Azul-vivo"),
         c("royal_blue", 0x4169E1, Family.BLUE, "Royal blue", "Azul real", "Azul-royal"),
         c("navy_blue", 0x000080, Family.BLUE, "Navy blue", "Azul marino", "Azul-marinho"),
         c("midnight_blue", 0x191970, Family.BLUE, "Midnight blue", "Azul medianoche", "Azul-meia-noite"),
+        c("dark_navy", 0x020640, Family.BLUE, "Dark navy blue", "Azul marino oscuro", "Azul-marinho-escuro"),
         c("prussian_blue", 0x003153, Family.BLUE, "Prussian blue", "Azul de Prusia", "Azul-da-prússia"),
         c("cobalt_blue", 0x0047AB, Family.BLUE, "Cobalt blue", "Azul cobalto", "Azul-cobalto"),
         c("sapphire", 0x0F52BA, Family.BLUE, "Sapphire", "Zafiro", "Safira"),
@@ -135,31 +136,33 @@ internal object DefaultPaletteData {
         c("slate_blue", 0x6A5ACD, Family.BLUE, "Slate blue", "Azul pizarra", "Azul-ardósia"),
         c("sky_blue", 0x87CEEB, Family.BLUE, "Sky blue", "Azul cielo", "Azul-celeste"),
         c("light_blue", 0xADD8E6, Family.BLUE, "Light blue", "Azul claro", "Azul-claro"),
-        c("periwinkle", 0xCCCCFF, Family.BLUE, "Periwinkle", "Azul pervinca", "Azul-pervinca"),
+        c("periwinkle", 0x9A93F5, Family.BLUE, "Periwinkle", "Azul pervinca", "Azul-pervinca"),
 
         // Purples
-        c("purple", 0x800080, Family.PURPLE, "Purple", "Morado", "Roxo"),
+        c("purple", 0x7E1E9C, Family.PURPLE, "Purple", "Morado", "Roxo"),
         c("violet", 0x8F00FF, Family.PURPLE, "Violet", "Violeta", "Violeta"),
         c("indigo", 0x4B0082, Family.PURPLE, "Indigo", "Índigo", "Índigo"),
+        c("bright_purple", 0xB400F5, Family.PURPLE, "Bright purple", "Morado brillante", "Roxo-vivo"),
+        c("blue_violet", 0x5A12E8, Family.PURPLE, "Blue-violet", "Azul violeta", "Azul-violeta"),
         c("dark_purple", 0x301934, Family.PURPLE, "Dark purple", "Morado oscuro", "Roxo-escuro"),
         c("eggplant", 0x614051, Family.PURPLE, "Eggplant", "Berenjena", "Berinjela"),
         c("plum", 0x8E4585, Family.PURPLE, "Plum", "Ciruela", "Ameixa"),
-        c("grape", 0x6F2DA8, Family.PURPLE, "Grape", "Uva", "Uva"),
         c("royal_purple", 0x7851A9, Family.PURPLE, "Royal purple", "Púrpura real", "Roxo-real"),
         c("amethyst", 0x9966CC, Family.PURPLE, "Amethyst", "Amatista", "Ametista"),
         c("orchid", 0xDA70D6, Family.PURPLE, "Orchid", "Orquídea", "Orquídea"),
-        c("mauve", 0xE0B0FF, Family.PURPLE, "Mauve", "Malva", "Malva"),
+        c("mauve", 0xB0768A, Family.PURPLE, "Mauve", "Malva", "Malva"),
         c("lilac", 0xC8A2C8, Family.PURPLE, "Lilac", "Lila", "Lilás"),
         c("light_purple", 0xCBC3E3, Family.PURPLE, "Light purple", "Morado claro", "Roxo-claro"),
-        c("lavender", 0xE6E6FA, Family.PURPLE, "Lavender", "Lavanda", "Lavanda"),
+        c("lavender", 0xC8A2F0, Family.PURPLE, "Lavender", "Lavanda", "Lavanda"),
 
         // Pinks
-        c("pink", 0xFFC0CB, Family.PINK, "Pink", "Rosa", "Rosa"),
+        c("pink", 0xFFB6D0, Family.PINK, "Pink", "Rosa", "Rosa"),
         c("pale_pink", 0xFADADD, Family.PINK, "Pale pink", "Rosa pálido", "Rosa-claro"),
         c("hot_pink", 0xFF69B4, Family.PINK, "Hot pink", "Rosa intenso", "Rosa-choque"),
         c("deep_pink", 0xFF1493, Family.PINK, "Deep pink", "Rosa fuerte", "Rosa-forte"),
         c("bright_rose", 0xFF007F, Family.PINK, "Bright rose", "Rosa brillante", "Rosa-vivo"),
         c("mexican_pink", 0xE4007C, Family.PINK, "Mexican pink", "Rosa mexicano", "Rosa-mexicano"),
+        c("dark_magenta", 0x96005A, Family.PINK, "Dark magenta", "Magenta oscuro", "Magenta-escuro"),
         c("raspberry", 0xD0104C, Family.PINK, "Raspberry", "Frambuesa", "Framboesa"),
         c("magenta", 0xFF00FF, Family.PINK, "Magenta", "Magenta", "Magenta"),
         c("mulberry", 0xC54B8C, Family.PINK, "Mulberry", "Mora", "Amora"),
@@ -169,9 +172,9 @@ internal object DefaultPaletteData {
         c("rose_gold", 0xB76E79, Family.PINK, "Rose gold", "Oro rosa", "Ouro-rosé"),
 
         // Browns and neutrals with a hue
-        c("brown", 0x964B00, Family.BROWN, "Brown", "Marrón", "Marrom"),
+        c("brown", 0x884700, Family.BROWN, "Brown", "Marrón", "Marrom"),
         c("dark_brown", 0x5C4033, Family.BROWN, "Dark brown", "Marrón oscuro", "Marrom-escuro"),
-        c("chocolate", 0x7B3F00, Family.BROWN, "Chocolate brown", "Marrón chocolate", "Marrom-chocolate"),
+        c("very_dark_brown", 0x2B1608, Family.BROWN, "Very dark brown", "Marrón muy oscuro", "Marrom-muito-escuro"),
         c("coffee", 0x6F4E37, Family.BROWN, "Coffee", "Café", "Café"),
         c("chestnut", 0x954535, Family.BROWN, "Chestnut", "Castaño", "Castanho"),
         c("light_brown", 0xB5651D, Family.BROWN, "Light brown", "Marrón claro", "Marrom-claro"),

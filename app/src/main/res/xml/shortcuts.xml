@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press the launcher icon: straight into camera mode (spec §4.4). -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="camera"
+        android:shortcutLongLabel="@string/shortcut_camera_long"
+        android:shortcutShortLabel="@string/shortcut_camera_short">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.wchsoftworks.daltonpick.camera.CameraActivity"
+            android:targetPackage="com.wchsoftworks.daltonpick" />
+    </shortcut>
+</shortcuts>

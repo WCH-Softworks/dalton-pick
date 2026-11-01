@@ -27,6 +27,8 @@ data class Settings(
     val tabPosition: Float = DEFAULT_TAB_POSITION,
     /** First-run onboarding finished (or skipped); the app opens on the home screen after that. */
     val onboardingDone: Boolean = false,
+    /** How many times camera mode has opened; the lighting hint shows for the first few (spec §4.4). */
+    val cameraOpens: Int = 0,
 ) {
     val sampleRadius: Int get() = sampleSize / 2
 
@@ -53,6 +55,7 @@ internal object SettingsKeys {
     val tabVisible = booleanPreferencesKey("tab_visible")
     val tabPosition = floatPreferencesKey("tab_position")
     val onboardingDone = booleanPreferencesKey("onboarding_done")
+    val cameraOpens = intPreferencesKey("camera_opens")
 }
 
 /** Reads stored values, falling back to defaults and clamping anything out of range. */
@@ -71,6 +74,7 @@ internal fun Preferences.toSettings(): Settings {
         tabVisible = this[SettingsKeys.tabVisible] ?: d.tabVisible,
         tabPosition = (this[SettingsKeys.tabPosition] ?: d.tabPosition).coerceIn(0f, 1f),
         onboardingDone = this[SettingsKeys.onboardingDone] ?: d.onboardingDone,
+        cameraOpens = (this[SettingsKeys.cameraOpens] ?: d.cameraOpens).coerceAtLeast(0),
     )
 }
 
@@ -86,4 +90,5 @@ internal fun MutablePreferences.write(s: Settings) {
     this[SettingsKeys.tabVisible] = s.tabVisible
     this[SettingsKeys.tabPosition] = s.tabPosition
     this[SettingsKeys.onboardingDone] = s.onboardingDone
+    this[SettingsKeys.cameraOpens] = s.cameraOpens
 }

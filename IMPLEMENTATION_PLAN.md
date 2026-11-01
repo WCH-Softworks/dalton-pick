@@ -91,14 +91,20 @@ Jetpack Compose + Material 3 (AndroidX only), replacing the plain-views test scr
 - [x] Theming: light and dark, with wallpaper colors on Android 12+. States are spelled out ("✓ On" / "✕ Off"), never color alone. 200% font scale checked on Home, Settings and About.
 - [x] Launcher icon: adaptive lens-and-crosshair over a color wheel, with a monochrome layer for themed icons.
 - [ ] TalkBack walk-through of the main app. Screens use Compose's standard semantics (switches, radio groups, headings, state descriptions, swatch names), but a full pass with TalkBack running was not done: injected taps on the emulator don't drive TalkBack reliably. Do it by hand on a phone.
-## M4b — Camera mode (≈ 4 days)
+## M4b — Camera mode (≈ 4 days) — *done on the emulator; needs a real camera*
 
-- [ ] CameraX preview (AndroidX, open source, no network) full screen with the same `LensView` drawing and label.
-- [ ] Sample from the `ImageAnalysis` frame at the crosshair (YUV → sRGB, 5×5 average), reusing `HysteresisNamer`.
-- [ ] Freeze button, tap the label to speak the name, torch toggle.
-- [ ] `CAMERA` permission requested on first use only, with a rationale screen.
-- [ ] Main-app button + launcher shortcut ("Camera lens").
+Checked on the Android 16 emulator's virtual back camera (the 3D room scene). Not yet tried with a real camera, so real-world color accuracy, the torch and pinch-zoom are untested.
 
+- [x] CameraX (1.4, AndroidX, no network) full-screen preview with the overlay's look drawn in Compose: dark-and-light ring at the lens size from Settings, gapped crosshair, sample box, and the same name pill (swatch, name, family · tone, optional hex/RGB).
+- [x] Live naming from `ImageAnalysis` frames in RGBA_8888 (CameraX does the YUV → RGB step): 5×5 linear-light average at the center of the frame's crop rect, which shares the preview's viewport, through `HysteresisNamer`. About 8 updates a second; frames are read and dropped, never stored. `FrameSampler` has unit tests (row padding, edges, flat colors).
+- [x] "Hold picture" freezes the frame; drag to check any spot on it (checked: dragging onto the green square reads "Green"). "Back to live" resumes.
+- [x] Tap the label to hear the name through the system text-to-speech engine, in the app's language. Checked that the engine synthesizes it (on-device voice); not heard, since the emulator has no speaker check.
+- [x] Torch button, shown only when the camera has a flash (the emulator has none, so untested).
+- [x] Pinch to zoom, with a zoom badge. Untested: adb can't send a two-finger pinch.
+- [x] Haptic tick on name changes (Settings), and TalkBack reads the name once it has held still for 700 ms.
+- [x] Lighting hint on the first three opens (spec §4.4); a "drag to check any spot" hint while the picture is held.
+- [x] `CAMERA` requested on first use only, after an explanation screen; after a "don't ask again" denial it sends people to App info. Checked deny-then-allow.
+- [x] Home entry ("Camera lens", hidden on devices without a camera) and a launcher shortcut (long-press the icon). Checked both.
 ## M5 — Hardening & QA (≈ 1 week)
 
 - [ ] Device matrix: Pixel (stock), Samsung One UI, Xiaomi/HyperOS (aggressive background killing, extra overlay permission), Motorola. Android 11–16.

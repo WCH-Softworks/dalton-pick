@@ -1,5 +1,7 @@
 package com.wchsoftworks.daltonpick.ui
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.wchsoftworks.daltonpick.R
+import com.wchsoftworks.daltonpick.camera.CameraActivity
 
 /** Whether the lens works right now, what's missing, and the way into everything else. */
 @Composable
@@ -54,6 +57,11 @@ fun HomeScreen(state: AppState, open: (Screen) -> Unit) {
         }
 
         SectionTitle(stringResource(R.string.home_more))
+        if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+            LinkRow(stringResource(R.string.camera_title), stringResource(R.string.camera_subtitle)) {
+                context.startActivity(Intent(context, CameraActivity::class.java))
+            }
+        }
         LinkRow(stringResource(R.string.test_chart_title), stringResource(R.string.test_chart_subtitle)) { open(Screen.TEST_CHART) }
         LinkRow(stringResource(R.string.settings_title)) { open(Screen.SETTINGS) }
         LinkRow(stringResource(R.string.about_title)) { open(Screen.ABOUT) }

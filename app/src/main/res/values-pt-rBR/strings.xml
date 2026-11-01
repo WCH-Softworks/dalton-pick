@@ -113,6 +113,25 @@
     <string name="onb_kofi_line">O DaltonPick é grátis e sem anúncios. Se ele ajuda você, você pode %1$s.</string>
     <string name="onb_kofi_link">me pagar um café</string>
 
+    <!-- Camera mode -->
+    <string name="camera_title">Lupa com câmera</string>
+    <string name="camera_subtitle">Saiba o nome das cores de coisas reais</string>
+    <string name="shortcut_camera_short">Lupa com câmera</string>
+    <string name="shortcut_camera_long">Ver nomes de cores com a câmera</string>
+    <string name="camera_permission_body">Aponte a câmera para roupas, tintas, frutas ou o que quiser, e o DaltonPick diz o nome da cor no centro da imagem.</string>
+    <string name="camera_permission_privacy">A imagem da câmera é lida no seu celular e descartada na hora. Nada é salvo nem enviado.</string>
+    <string name="camera_allow">Permitir câmera</string>
+    <string name="camera_permission_denied">O acesso à câmera está desativado para o DaltonPick. Ative em Permissões, nas informações do app.</string>
+    <string name="camera_close">Agora não</string>
+    <string name="camera_starting">Iniciando a câmera…</string>
+    <string name="camera_lighting_hint">A luz muda a aparência das cores. A luz do dia dá os nomes mais fiéis.</string>
+    <string name="camera_frozen_hint">Imagem congelada. Arraste para conferir qualquer ponto.</string>
+    <string name="camera_freeze">Congelar imagem</string>
+    <string name="camera_resume">Voltar ao vivo</string>
+    <string name="camera_torch_on">Ligar luz</string>
+    <string name="camera_torch_off">Desligar luz</string>
+    <string name="camera_tap_to_speak">dizer o nome</string>
+
     <!-- Overlay -->
     <string name="protected_content">Conteúdo oculto</string>
     <string name="protected_content_detail">O app bloqueia capturas</string>

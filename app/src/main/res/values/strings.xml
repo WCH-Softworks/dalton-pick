@@ -114,6 +114,25 @@
     <string name="onb_kofi_line">DaltonPick is free and ad-free. If it helps you, you can %1$s.</string>
     <string name="onb_kofi_link">buy me a coffee</string>
 
+    <!-- Camera mode -->
+    <string name="camera_title">Camera lens</string>
+    <string name="camera_subtitle">Name the colors of real things</string>
+    <string name="shortcut_camera_short">Camera lens</string>
+    <string name="shortcut_camera_long">Name colors with the camera</string>
+    <string name="camera_permission_body">Point your camera at clothes, paint, fruit or anything else, and DaltonPick names the color in the middle of the picture.</string>
+    <string name="camera_permission_privacy">The camera picture is read on your phone and dropped right away. Nothing is saved or sent.</string>
+    <string name="camera_allow">Allow camera</string>
+    <string name="camera_permission_denied">Camera access is turned off for DaltonPick. Turn it on under Permissions in App info.</string>
+    <string name="camera_close">Not now</string>
+    <string name="camera_starting">Starting the camera…</string>
+    <string name="camera_lighting_hint">Light changes how colors look. Daylight gives the truest names.</string>
+    <string name="camera_frozen_hint">Picture held. Drag to check any spot.</string>
+    <string name="camera_freeze">Hold picture</string>
+    <string name="camera_resume">Back to live</string>
+    <string name="camera_torch_on">Light on</string>
+    <string name="camera_torch_off">Light off</string>
+    <string name="camera_tap_to_speak">say the name</string>
+
     <!-- Overlay -->
     <string name="protected_content">Content hidden</string>
     <string name="protected_content_detail">The app blocks capture</string>

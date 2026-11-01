@@ -49,6 +49,11 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
+    // Camera mode (spec §4.4): CameraX is AndroidX too, and makes no network calls.
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+
     testImplementation(kotlin("test"))
 }
 

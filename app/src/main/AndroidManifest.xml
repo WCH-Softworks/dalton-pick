@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Camera mode only, asked for the first time it opens (spec §4.4). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- The lens works without a camera; camera mode just isn't offered. -->
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -23,7 +28,17 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
+
+        <!-- Camera mode: also reachable from the launcher shortcut. -->
+        <activity
+            android:name=".camera.CameraActivity"
+            android:exported="false"
+            android:label="@string/camera_title"
+            android:theme="@style/Theme.DaltonPick" />
 
         <!-- Capture backend A: hosts the overlay and takes screenshots (spec §5.2). -->
         <service

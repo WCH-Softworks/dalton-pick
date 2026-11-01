@@ -31,4 +31,13 @@ kotlin {
 
 dependencies {
     implementation(project(":colorengine"))
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.dynamicanimation)
+    implementation(libs.kotlinx.coroutines.android)
+
+    testImplementation(kotlin("test"))
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

@@ -1,8 +1,14 @@
 [versions]
 agp = "8.12.0"
 kotlin = "2.1.20"
+datastore = "1.1.7"
+coroutines = "1.10.2"
+dynamicanimation = "1.0.0"
 
 [libraries]
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+androidx-dynamicanimation = { module = "androidx.dynamicanimation:dynamicanimation", version.ref = "dynamicanimation" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

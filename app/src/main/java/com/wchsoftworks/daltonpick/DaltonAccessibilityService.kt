@@ -2,33 +2,33 @@ package com.wchsoftworks.daltonpick
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
+import android.content.res.Configuration
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import com.wchsoftworks.daltonpick.capture.A11yCapturer
-import com.wchsoftworks.daltonpick.overlay.OverlayController
+import com.wchsoftworks.daltonpick.overlay.OverlayRuntime
 
 /**
- * Backend A host. An accessibility service can add TYPE_ACCESSIBILITY_OVERLAY windows without
- * the "display over other apps" permission and can take screenshots without a consent dialog.
+ * Main host. An accessibility service can add TYPE_ACCESSIBILITY_OVERLAY windows without the
+ * "display over other apps" permission and can take screenshots without a consent dialog.
+ * The tab appears as soon as the service is enabled, unless the user hid it.
  */
 class DaltonAccessibilityService : AccessibilityService() {
-    private var controller: OverlayController? = null
+    private var runtime: OverlayRuntime? = null
 
     override fun onServiceConnected() {
         instance = this
-    }
-
-    fun showOverlay() {
-        val c = controller ?: OverlayController(
+        runtime = OverlayRuntime(
             this,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             A11yCapturer(this),
-        ).also { controller = it }
-        c.show()
+            withStopAction = false,
+        ).also { it.start() }
     }
 
-    fun hideOverlay() {
-        controller?.hide()
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        runtime?.onScreenChanged()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
@@ -36,14 +36,14 @@ class DaltonAccessibilityService : AccessibilityService() {
     override fun onInterrupt() = Unit
 
     override fun onUnbind(intent: Intent?): Boolean {
-        hideOverlay()
-        controller = null
+        runtime?.stop()
+        runtime = null
         instance = null
         return super.onUnbind(intent)
     }
 
     companion object {
-        /** The connected service, or null when the user hasn't enabled it. */
+        /** The connected service, or null when the user has not enabled it. */
         var instance: DaltonAccessibilityService? = null
             private set
     }

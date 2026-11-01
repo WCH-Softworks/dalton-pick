@@ -3,7 +3,7 @@
     <string name="app_name" translatable="false">DaltonPick</string>
     <string name="a11y_description">Lets DaltonPick read the colors on your screen so it can name them. Screen images stay on your device and are never saved.</string>
 
-    <string name="spike_title">DaltonPick: M0 test build</string>
+    <string name="main_title">DaltonPick: test and settings screen</string>
     <string name="status_overlay">Display over other apps: %1$s</string>
     <string name="status_a11y">Accessibility service: %1$s</string>
     <string name="status_on">on</string>
@@ -11,25 +11,42 @@
 
     <string name="btn_grant_overlay">Allow display over other apps</string>
     <string name="btn_open_a11y">Open Accessibility settings</string>
-    <string name="btn_start_a11y">Start lens (Accessibility capture)</string>
-    <string name="btn_start_projection">Start lens (screen-recording capture)</string>
-    <string name="btn_stop">Stop lens</string>
-
-    <string name="opt_hide_before_capture">Hide overlay before capture</string>
-    <string name="opt_extra_delay">Extra capture delay: %1$d ms</string>
-    <string name="opt_tab_right">Tab on right edge</string>
-
-    <string name="last_capture">Last capture: %1$s</string>
-    <string name="no_capture_yet">none yet</string>
+    <string name="btn_start_projection">Use screen-recording capture instead</string>
+    <string name="btn_stop">Stop screen-recording capture</string>
     <string name="swatches_title">Test swatches. The name under each one is what the lens should say.</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="setting_tab_visible">Show the edge tab</string>
+    <string name="setting_edge_right">Tab on the right edge</string>
+    <string name="setting_auto_dim">Dim the tab when idle</string>
+    <string name="setting_lens_size">Lens size: %1$d dp</string>
+    <string name="setting_zoom">Zoom: %1$d×</string>
+    <string name="setting_sample_size">Sample size: %1$d×%1$d pixels</string>
+    <string name="setting_show_hex">Show hex and RGB values</string>
+    <string name="setting_haptics">Vibrate when the name changes</string>
+    <string name="setting_developer">Developer</string>
+    <string name="setting_show_debug">Show capture details in the label</string>
 
     <string name="a11y_not_enabled">Turn on the DaltonPick accessibility service first.</string>
     <string name="overlay_not_granted">Allow display over other apps first.</string>
+    <string name="accessibility_active">The accessibility service is on and is used first. Turn it off to try screen-recording capture.</string>
     <string name="protected_content">This app hides its content</string>
     <string name="capture_failed">Capture failed: %1$s</string>
 
-    <string name="notif_channel">Screen capture</string>
+    <string name="tab_description">DaltonPick color lens. Double-tap to open.</string>
+    <string name="tab_action_switch_edge">Move to the other side of the screen</string>
+
+    <string name="notif_channel">Color lens</string>
     <string name="notif_title">DaltonPick is ready</string>
-    <string name="notif_text">Pull the edge tab to open the lens.</string>
+    <string name="notif_text_shown">Pull the edge tab to open the lens.</string>
+    <string name="notif_text_hidden">The edge tab is hidden.</string>
+    <string name="notif_hide">Hide</string>
+    <string name="notif_show">Show</string>
+    <string name="notif_settings">Settings</string>
     <string name="notif_stop">Stop</string>
+
+    <string name="tile_label">Color lens</string>
+    <string name="tile_shown">Tab shown</string>
+    <string name="tile_hidden">Tab hidden</string>
+    <string name="tile_needs_setup">Needs setup</string>
 </resources>

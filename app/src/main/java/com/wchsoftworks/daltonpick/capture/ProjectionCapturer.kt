@@ -21,18 +21,19 @@ import android.view.WindowManager
  * frame around. Hiding the overlay before a capture changes the screen, which delivers a
  * fresh frame without the lens in it.
  */
-class ProjectionCapturer(context: Context, private val projection: MediaProjection) : ScreenCapturer {
+class ProjectionCapturer(private val context: Context, private val projection: MediaProjection) : ScreenCapturer {
     override val name = "Projection"
 
     private val thread = HandlerThread("DaltonPick-capture").apply { start() }
     private val handler = Handler(thread.looper)
     private val main = Handler(Looper.getMainLooper())
 
-    private val bounds = context.getSystemService(WindowManager::class.java).maximumWindowMetrics.bounds
-    private val width = bounds.width()
-    private val height = bounds.height()
+    private fun screenBounds() = context.getSystemService(WindowManager::class.java).maximumWindowMetrics.bounds
+    private val bounds = screenBounds()
+    private var width = bounds.width()
+    private var height = bounds.height()
 
-    private val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 3)
+    private var reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 3)
     private val display: VirtualDisplay?
 
     // Only touched on [handler]'s thread.
@@ -42,15 +43,7 @@ class ProjectionCapturer(context: Context, private val projection: MediaProjecti
     private class Pending(val start: Long, val onResult: (Result<Snapshot>) -> Unit)
 
     init {
-        reader.setOnImageAvailableListener({ r ->
-            val image = r.acquireLatestImage() ?: return@setOnImageAvailableListener
-            latest?.close()
-            latest = image
-            pending?.let {
-                pending = null
-                deliver(image, it.start, it.onResult)
-            }
-        }, handler)
+        listenTo(reader)
         display = projection.createVirtualDisplay(
             "DaltonPick",
             width,
@@ -61,6 +54,39 @@ class ProjectionCapturer(context: Context, private val projection: MediaProjecti
             null,
             handler,
         )
+    }
+
+    private fun listenTo(reader: ImageReader) {
+        reader.setOnImageAvailableListener({ r ->
+            val image = r.acquireLatestImage() ?: return@setOnImageAvailableListener
+            latest?.close()
+            latest = image
+            pending?.let {
+                pending = null
+                deliver(image, it.start, it.onResult)
+            }
+        }, handler)
+    }
+
+    /**
+     * Rotation: the virtual display can only be resized in place (Android 14+ allows one display per
+     * projection), so swap in a reader of the new size and drop the stale frame.
+     */
+    override fun onScreenChanged() {
+        handler.post {
+            val b = screenBounds()
+            if (b.width() == width && b.height() == height) return@post
+            width = b.width()
+            height = b.height()
+            latest?.close()
+            latest = null
+            val old = reader
+            reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 3)
+            listenTo(reader)
+            display?.resize(width, height, context.resources.displayMetrics.densityDpi)
+            display?.surface = reader.surface
+            old.close()
+        }
     }
 
     override fun capture(onResult: (Result<Snapshot>) -> Unit) {

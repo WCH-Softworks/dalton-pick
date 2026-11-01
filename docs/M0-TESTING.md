@@ -1,5 +1,7 @@
 # M0 — Testing the spike build on a phone
 
+> **Out of date since M2.** The app no longer has the M0 buttons or the "Hide overlay before capture" toggle: the accessibility host shows the tab as soon as the service is on, and the capture details line in the label is behind *Developer → Show capture details in the label*. Turn that on to read the numbers this checklist asks for. The fallback is the "Use screen-recording capture instead" button.
+
 The M0 build is a bare test app. It is not the real UI. It exists to answer one question per phone: **does the pull-out lens capture the screen quickly, without capturing itself, and read the right colors?**
 
 ## 1. Build and install

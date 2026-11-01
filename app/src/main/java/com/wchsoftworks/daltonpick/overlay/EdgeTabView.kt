@@ -6,14 +6,19 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.accessibility.AccessibilityNodeInfo
+import com.wchsoftworks.daltonpick.R
 import kotlin.math.abs
 
 /**
  * The idle "hidden away" tab docked to a screen edge (spec §4.1).
- * Drag along the edge to move it, pull it inward to bring out the lens, tap to put the lens away.
+ * Drag along the edge to move it, pull it inward to bring out the lens, tap it to open or close
+ * the lens, and hold then drag to carry it to the other edge.
  */
 @SuppressLint("ViewConstructor")
 class EdgeTabView(context: Context, private val controller: OverlayController) : View(context) {
@@ -35,12 +40,24 @@ class EdgeTabView(context: Context, private val controller: OverlayController) :
     }
     private val pill = RectF()
 
-    private enum class Mode { NONE, MOVE, PULL }
+    private enum class Mode { NONE, MOVE, PULL, CARRY }
 
     private var mode = Mode.NONE
     private var downX = 0f
     private var downY = 0f
     private var startTabY = 0
+
+    private val startCarry = Runnable {
+        if (mode == Mode.NONE) {
+            mode = Mode.CARRY
+            performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            controller.beginCarry()
+        }
+    }
+
+    init {
+        contentDescription = context.getString(R.string.tab_description)
+    }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
@@ -66,6 +83,8 @@ class EdgeTabView(context: Context, private val controller: OverlayController) :
                 downX = event.rawX
                 downY = event.rawY
                 startTabY = controller.tabY
+                controller.onTabTouched()
+                postDelayed(startCarry, ViewConfiguration.getLongPressTimeout().toLong())
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -73,34 +92,62 @@ class EdgeTabView(context: Context, private val controller: OverlayController) :
                 val vertical = event.rawY - downY
                 if (mode == Mode.NONE) {
                     if (inward > pullThreshold) {
+                        removeCallbacks(startCarry)
                         mode = Mode.PULL
                         controller.startPull(event.rawX, event.rawY)
                     } else if (abs(vertical) > touchSlop && abs(vertical) > inward) {
+                        removeCallbacks(startCarry)
                         mode = Mode.MOVE
                     }
                 }
                 when (mode) {
                     Mode.MOVE -> controller.moveTabTo(startTabY + vertical.toInt())
                     Mode.PULL -> controller.dragPull(event.rawX, event.rawY)
+                    Mode.CARRY -> controller.carryTabTo(event.rawX, event.rawY)
                     Mode.NONE -> Unit
                 }
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                removeCallbacks(startCarry)
                 when (mode) {
                     Mode.PULL -> controller.endPull()
                     Mode.MOVE -> controller.saveTabPosition()
-                    Mode.NONE -> if (event.actionMasked == MotionEvent.ACTION_UP) controller.tapTab()
+                    Mode.CARRY -> controller.endCarry(event.rawX, event.rawY)
+                    Mode.NONE -> if (event.actionMasked == MotionEvent.ACTION_UP) performClick()
                 }
                 mode = Mode.NONE
+                controller.onTabReleased()
             }
         }
         return true
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
+        controller.tapTab()
+        return true
+    }
+
+    // TalkBack users can't drag the tab: a double-tap opens the lens at screen centre, and a custom
+    // action switches the edge.
+    override fun onInitializeAccessibilityNodeInfo(info: AccessibilityNodeInfo) {
+        super.onInitializeAccessibilityNodeInfo(info)
+        info.addAction(AccessibilityNodeInfo.AccessibilityAction(ACTION_SWITCH_EDGE, context.getString(R.string.tab_action_switch_edge)))
+    }
+
+    override fun performAccessibilityAction(action: Int, arguments: Bundle?): Boolean {
+        if (action == ACTION_SWITCH_EDGE) {
+            controller.switchEdge()
+            return true
+        }
+        return super.performAccessibilityAction(action, arguments)
     }
 
     companion object {
         const val VISUAL_WIDTH_DP = 8
         const val TOUCH_WIDTH_DP = 28
         const val HEIGHT_DP = 56
+        private val ACTION_SWITCH_EDGE = R.id.action_switch_edge
     }
 }

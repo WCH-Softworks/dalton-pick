@@ -12,6 +12,9 @@ interface ScreenCapturer {
     /** Captures the screen and calls [onResult] on the main thread. */
     fun capture(onResult: (Result<Snapshot>) -> Unit)
 
+    /** The screen was rotated or resized: drop anything sized for the old screen. */
+    fun onScreenChanged() {}
+
     fun release() {}
 }
 

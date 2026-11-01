@@ -8,38 +8,55 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
+import android.view.ViewConfiguration
 import com.wchsoftworks.daltonpick.capture.Snapshot
 import com.wchsoftworks.daltonpick.colorengine.ColorLabel
+import com.wchsoftworks.daltonpick.colorengine.Srgb
+import com.wchsoftworks.daltonpick.settings.Settings
 
 /**
  * The round lens with a gapped crosshair, plus the name label (spec §4.2).
  * Draws a magnified region of the frozen [Snapshot]; the controller decides what to show.
  */
 @SuppressLint("ViewConstructor")
-class LensView(context: Context, private val controller: OverlayController) : View(context) {
+class LensView(
+    context: Context,
+    private val controller: OverlayController,
+    settings: Settings,
+) : View(context) {
     private val density = resources.displayMetrics.density
-    private val scaledDensity = density * resources.configuration.fontScale
+    private val fontScale = resources.configuration.fontScale.coerceIn(1f, 2f)
+    private val scaledDensity = density * fontScale
 
-    val lensSizePx = (LENS_DP * density).toInt()
-    val labelHeightPx = (LABEL_DP * density * resources.configuration.fontScale.coerceAtLeast(1f)).toInt()
+    private val showHex = settings.showHex
+    private val showDebug = settings.showDebug
+
+    val lensSizePx = (settings.lensSizeDp * density).toInt()
+    val labelHeightPx = (labelHeightDp(showHex, showDebug) * density * fontScale).toInt()
     val gapPx = (8 * density).toInt()
     val windowWidthPx = maxOf(lensSizePx, (WINDOW_MIN_WIDTH_DP * density).toInt())
     val windowHeightPx = lensSizePx + gapPx + labelHeightPx
 
-    var zoom = 3f
-    var sampleRadius = 1
+    var zoom = settings.zoom.toFloat()
+    var sampleRadius = settings.sampleRadius
 
     /** True when the label sits above the lens (lens near the bottom of the screen). */
     var labelAbove = false
 
     /**
-     * Lens centre within this window. The window is kept on screen so the label never gets cut
-     * off, which moves the lens off-centre when it is near a side edge.
+     * Lens centre within this window. The window is kept inside the safe area so the label never
+     * gets cut off, which moves the lens off-centre when it is near a side edge.
      */
     var lensCenterX = windowWidthPx / 2f
+
+    val lensCenterY: Float get() = lensTop + lensSizePx / 2f
+
+    /** True while fine-adjust mode is on: the lens moves at a fraction of finger speed. */
+    private var precision = false
 
     private var snapshot: Snapshot? = null
     private var sampleX = 0
@@ -53,6 +70,8 @@ class LensView(context: Context, private val controller: OverlayController) : Vi
     private val emptyPaint = Paint().apply { color = 0xFF404040.toInt() }
     private val ringDark = stroke(4f, 0xE6000000.toInt())
     private val ringLight = stroke(2f, 0xFFFFFFFF.toInt())
+    private val precisionDark = stroke(3f, 0xE6000000.toInt())
+    private val precisionLight = stroke(1f, 0xFFFFFFFF.toInt())
     private val crossDark = stroke(3f, 0xCC000000.toInt())
     private val crossLight = stroke(1.25f, 0xFFFFFFFF.toInt())
     private val labelBg = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xF0202020.toInt() }
@@ -60,7 +79,7 @@ class LensView(context: Context, private val controller: OverlayController) : Vi
     private val swatchRing = stroke(1.5f, 0xFFFFFFFF.toInt())
     private val nameText = text(18f, 0xFFFFFFFF.toInt(), Typeface.DEFAULT_BOLD)
     private val detailText = text(13f, 0xFFE0E0E0.toInt(), Typeface.DEFAULT)
-    private val debugText = text(10f, 0xFFB0B0B0.toInt(), Typeface.MONOSPACE)
+    private val smallText = text(11f, 0xFFB8B8B8.toInt(), Typeface.MONOSPACE)
 
     private val clip = Path()
     private val src = Rect()
@@ -86,7 +105,7 @@ class LensView(context: Context, private val controller: OverlayController) : Vi
         this.sampledRgb = rgb
         this.label = label
         this.debugLine = debugLine
-        contentDescription = label.name
+        contentDescription = if (label.detail.isEmpty()) label.name else "${label.name}, ${label.detail}"
         invalidate()
     }
 
@@ -101,7 +120,7 @@ class LensView(context: Context, private val controller: OverlayController) : Vi
     private fun drawLens(canvas: Canvas) {
         val r = lensSizePx / 2f
         val cx = lensCenterX
-        val cy = lensTop + r
+        val cy = lensCenterY
 
         canvas.save()
         clip.reset()
@@ -132,6 +151,12 @@ class LensView(context: Context, private val controller: OverlayController) : Vi
         drawCrosshair(canvas, cx, cy)
         canvas.drawCircle(cx, cy, r - ringDark.strokeWidth / 2, ringDark)
         canvas.drawCircle(cx, cy, r - ringDark.strokeWidth / 2, ringLight)
+        if (precision) {
+            // A second, inner ring shows fine-adjust mode without relying on color.
+            val inner = r - ringDark.strokeWidth - 4 * density
+            canvas.drawCircle(cx, cy, inner, precisionDark)
+            canvas.drawCircle(cx, cy, inner, precisionLight)
+        }
     }
 
     private fun drawCrosshair(canvas: Canvas, cx: Float, cy: Float) {
@@ -170,10 +195,17 @@ class LensView(context: Context, private val controller: OverlayController) : Vi
         if (label.detail.isNotEmpty()) {
             y += nameText.descent() - detailText.ascent() + 2 * density
             canvas.drawText(ellipsize(label.detail, detailText, maxWidth), textX, y, detailText)
+            if (showHex) {
+                y += detailText.descent() - smallText.ascent() + 2 * density
+                val hex = "${Srgb.toHex(sampledRgb)} · ${sampledRgb shr 16 and 0xFF}, ${sampledRgb shr 8 and 0xFF}, ${sampledRgb and 0xFF}"
+                canvas.drawText(ellipsize(hex, smallText, maxWidth), textX, y, smallText)
+            }
         }
-        debugLine?.let {
-            y += detailText.descent() - debugText.ascent() + 2 * density
-            canvas.drawText(ellipsize(it, debugText, maxWidth), textX, y, debugText)
+        if (showDebug) {
+            debugLine?.let {
+                y += smallText.descent() - smallText.ascent() + 2 * density
+                canvas.drawText(ellipsize(it, smallText, maxWidth), textX, y, smallText)
+            }
         }
     }
 
@@ -184,57 +216,114 @@ class LensView(context: Context, private val controller: OverlayController) : Vi
         return s.substring(0, end) + "…"
     }
 
-    // --- Touch: drag anywhere to move, tap the label to refresh, fling sideways to dismiss.
+    // --- Touch. Drag from the lens to move it, hold to fine-adjust, drag from outside the circle
+    // (the label or window corners) to fine-adjust, tap the label to refresh, fling to dismiss.
 
-    private var downRawX = 0f
-    private var downRawY = 0f
+    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+    private var baseRawX = 0f
+    private var baseRawY = 0f
+    private var lastRawX = 0f
+    private var lastRawY = 0f
     private var moved = false
+    private var startedOutside = false
     private var velocity: VelocityTracker? = null
+
+    private val enterPrecisionOnHold = Runnable {
+        if (!moved && !precision) enterPrecision()
+    }
+
+    private fun enterPrecision() {
+        precision = true
+        moved = false
+        baseRawX = lastRawX
+        baseRawY = lastRawY
+        controller.beginLensDrag()
+        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        invalidate()
+    }
+
+    private fun insideCircle(x: Float, y: Float): Boolean {
+        val dx = x - lensCenterX
+        val dy = y - lensCenterY
+        val r = lensSizePx / 2f
+        return dx * dx + dy * dy <= r * r
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        lastRawX = event.rawX
+        lastRawY = event.rawY
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                downRawX = event.rawX
-                downRawY = event.rawY
+                baseRawX = event.rawX
+                baseRawY = event.rawY
                 moved = false
+                precision = false
+                startedOutside = !insideCircle(event.x, event.y)
                 velocity = VelocityTracker.obtain().also { it.addMovement(event) }
                 controller.beginLensDrag()
+                if (!startedOutside) postDelayed(enterPrecisionOnHold, ViewConfiguration.getLongPressTimeout().toLong())
             }
 
             MotionEvent.ACTION_MOVE -> {
                 velocity?.addMovement(event)
-                val dx = event.rawX - downRawX
-                val dy = event.rawY - downRawY
-                if (!moved && dx * dx + dy * dy > (6 * density) * (6 * density)) moved = true
-                if (moved) controller.dragLensBy(dx, dy)
+                val dx = event.rawX - baseRawX
+                val dy = event.rawY - baseRawY
+                if (!moved && dx * dx + dy * dy > touchSlop * touchSlop) {
+                    moved = true
+                    removeCallbacks(enterPrecisionOnHold)
+                    if (startedOutside && !precision) {
+                        // Restart from here so the lens doesn't jump by the slop distance.
+                        enterPrecision()
+                        moved = true
+                        return true
+                    }
+                }
+                if (moved) {
+                    val f = if (precision) PRECISION_FACTOR else 1f
+                    controller.dragLensBy(dx * f, dy * f)
+                }
             }
 
             MotionEvent.ACTION_UP -> {
+                removeCallbacks(enterPrecisionOnHold)
                 velocity?.addMovement(event)
                 velocity?.computeCurrentVelocity(1000)
                 val vx = velocity?.xVelocity ?: 0f
                 velocity?.recycle()
                 velocity = null
-                val tappedLabel = event.y >= labelTop && event.y <= labelTop + labelHeightPx
+                val tappedLabel =event.y >= labelTop && event.y <= labelTop + labelHeightPx
                 when {
-                    moved && controller.isFlingTowardTab(vx) -> controller.dismissLens()
-                    moved -> controller.endLensDrag()
+                    moved && !precision && controller.isFlingTowardTab(vx) -> controller.dismissLens()
+                    moved || precision -> controller.endLensDrag()
                     tappedLabel -> controller.refresh()
                 }
+                endPrecision()
             }
 
             MotionEvent.ACTION_CANCEL -> {
+                removeCallbacks(enterPrecisionOnHold)
                 velocity?.recycle()
                 velocity = null
+                endPrecision()
             }
         }
         return true
     }
 
+    private fun endPrecision() {
+        if (precision) {
+            precision = false
+            invalidate()
+        }
+    }
+
     companion object {
-        const val LENS_DP = 140
-        const val LABEL_DP = 76
         const val WINDOW_MIN_WIDTH_DP = 240
+        const val PRECISION_FACTOR = 0.25f
+
+        /** Name and family lines, plus one line each for the optional hex and debug text. */
+        fun labelHeightDp(showHex: Boolean, showDebug: Boolean): Int =
+            64 + (if (showHex) 16 else 0) + (if (showDebug) 14 else 0)
     }
 }

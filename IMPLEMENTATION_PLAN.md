@@ -43,17 +43,22 @@ Goal: prove the core mechanism works on real devices before building anything el
 - [ ] Expand the golden table toward about 300 entries during palette review.
 - [ ] Palette review by colorblind testers, a color-normal reviewer, and a native speaker of each language.
 
-## M2 — Overlay UI (≈ 1 week)
+## M2 — Overlay UI (≈ 1 week) — *in progress*
 
-- [ ] `OverlayService` (foreground, persistent notification with Hide / Settings).
-- [ ] `EdgeTabView`: docking left or right, vertical drag, snap to edge, auto-dim, saved position.
-- [ ] Pull gesture: tab → lens transition (spring animation). Fling back to dismiss.
-- [ ] `LensView` (Canvas): circular clip, nearest-neighbour scaling from the snapshot, two-tone ring, gapped crosshair.
-- [ ] Name label pill: auto-placed above or below the lens, adapts to screen edges and cutouts. Shows swatch, name, family and optional hex.
-- [ ] Fine-adjust precision drag mode.
-- [ ] Haptic tick when the name changes. TalkBack announcement (debounced).
-- [ ] Rotation, multi-window and display-cutout handling. Clamp the lens to screen bounds.
-- [ ] Quick Settings tile (show/hide tab).
+Checked on the Android 16 emulator only (Pixel 9 Pro AVD, gesture navigation); nothing here has been seen on a real phone yet.
+
+- [x] Hosts behind one `OverlayRuntime`: the accessibility service is the main path, MediaProjection (`ProjectionOverlayService`, foreground) is the fallback, both behind `ScreenCapturer`. Persistent notification with Hide/Show and Settings (plus Stop on the fallback). **Note:** the accessibility host posts a normal ongoing notification, not a foreground-service one, so on Android 14+ the user can swipe it away; the Quick Settings tile still works.
+- [x] `EdgeTabView`: docking left or right, vertical drag, hold-and-carry to snap to the other edge, auto-dim to 30% after 3 s, saved position (as a fraction of screen height, so it survives rotation). TalkBack: double-tap opens the lens; a custom action switches the edge.
+- [x] Pull gesture: tab → lens spring animation (skipped when system animations are off). Fling back to dismiss.
+- [x] `LensView` (Canvas): circular clip, nearest-neighbour scaling from the snapshot, two-tone ring, gapped crosshair.
+- [x] Name label pill: auto-placed above or below the lens, kept inside the safe area (system bars and cutout insets). Shows swatch, name, family and optional hex/RGB. The debug line is hidden unless the developer setting is on. *(Cutout insets are used but not seen on a device that has a cutout in the tested orientation.)*
+- [x] Fine-adjust precision drag (0.25× speed, extra inner ring): long press on the lens, or drag starting outside the circle.
+- [x] Haptic tick when the name changes (setting).
+- [ ] TalkBack announcement, debounced 700 ms and only when the name changed. Written, **not tested with TalkBack running**.
+- [x] Rotation: lens dismissed, tab re-docked, MediaProjection virtual display resized. Checked on both backends.
+- [ ] Multi-window and display cutouts. The lens and tab use the safe-area insets, but split-screen/freeform and a cutout edge have not been exercised.
+- [x] Quick Settings tile (show/hide tab; opens the app when no host is running).
+- [x] Settings in DataStore (`SettingsRepository`) replace `SpikePrefs`: lens size, zoom, edge, auto-dim, sample size, hex, haptics, developer debug line, tab visibility and position. The settings UI on the main screen is still the plain-views test screen; the real one comes in M4.
 
 ## M3 — Capture integration (≈ 4 days)
 
@@ -68,7 +73,7 @@ Goal: prove the core mechanism works on real devices before building anything el
 
 - [ ] Onboarding flow: explanation → overlay permission → accessibility (or projection) permission → notifications → practice screen → one-line Ko-fi mention.
 - [ ] Permission status screen with deep links to fix each missing grant.
-- [ ] Settings (DataStore): lens size, zoom, edge, auto-dim, sample size, hex/RGB, haptics, language (per-app language, en/es/pt-BR).
+- [ ] Settings screen (the DataStore repository exists since M2): lens size, zoom, edge, auto-dim, sample size, hex/RGB, haptics, language (per-app language, en/es/pt-BR).
 - [ ] Test chart screen (a swatch grid that includes common confusion pairs).
 - [ ] About screen: version, privacy policy link, open-source licenses, **Support on Ko-fi** button (`ACTION_VIEW` intent, URL in one constant).
 - [ ] Theming (light/dark), font-scale and TalkBack QA.

@@ -2,7 +2,7 @@
 <resources>
     <string name="a11y_description">Permite que DaltonPick lea los colores de tu pantalla para nombrarlos. Las imágenes de la pantalla se quedan en tu dispositivo y nunca se guardan.</string>
 
-    <string name="spike_title">DaltonPick: versión de prueba M0</string>
+    <string name="main_title">DaltonPick: pantalla de prueba y ajustes</string>
     <string name="status_overlay">Mostrar sobre otras apps: %1$s</string>
     <string name="status_a11y">Servicio de accesibilidad: %1$s</string>
     <string name="status_on">activado</string>
@@ -10,25 +10,42 @@
 
     <string name="btn_grant_overlay">Permitir mostrar sobre otras apps</string>
     <string name="btn_open_a11y">Abrir ajustes de accesibilidad</string>
-    <string name="btn_start_a11y">Iniciar lupa (captura por accesibilidad)</string>
-    <string name="btn_start_projection">Iniciar lupa (captura por grabación de pantalla)</string>
-    <string name="btn_stop">Detener lupa</string>
-
-    <string name="opt_hide_before_capture">Ocultar la lupa antes de capturar</string>
-    <string name="opt_extra_delay">Retraso extra de captura: %1$d ms</string>
-    <string name="opt_tab_right">Pestaña en el borde derecho</string>
-
-    <string name="last_capture">Última captura: %1$s</string>
-    <string name="no_capture_yet">ninguna aún</string>
+    <string name="btn_start_projection">Usar captura por grabación de pantalla</string>
+    <string name="btn_stop">Detener captura por grabación de pantalla</string>
     <string name="swatches_title">Muestras de prueba. El nombre debajo de cada una es lo que debería decir la lupa.</string>
+
+    <string name="settings_title">Ajustes</string>
+    <string name="setting_tab_visible">Mostrar la pestaña del borde</string>
+    <string name="setting_edge_right">Pestaña en el borde derecho</string>
+    <string name="setting_auto_dim">Atenuar la pestaña cuando no se usa</string>
+    <string name="setting_lens_size">Tamaño de la lupa: %1$d dp</string>
+    <string name="setting_zoom">Zoom: %1$d×</string>
+    <string name="setting_sample_size">Tamaño de la muestra: %1$d×%1$d píxeles</string>
+    <string name="setting_show_hex">Mostrar valores hex y RGB</string>
+    <string name="setting_haptics">Vibrar cuando cambia el nombre</string>
+    <string name="setting_developer">Desarrollador</string>
+    <string name="setting_show_debug">Mostrar detalles de captura en la etiqueta</string>
 
     <string name="a11y_not_enabled">Primero activa el servicio de accesibilidad de DaltonPick.</string>
     <string name="overlay_not_granted">Primero permite mostrar sobre otras apps.</string>
+    <string name="accessibility_active">El servicio de accesibilidad está activado y se usa primero. Desactívalo para probar la captura por grabación de pantalla.</string>
     <string name="protected_content">Esta app oculta su contenido</string>
     <string name="capture_failed">Falló la captura: %1$s</string>
 
-    <string name="notif_channel">Captura de pantalla</string>
+    <string name="tab_description">Lupa de color de DaltonPick. Toca dos veces para abrir.</string>
+    <string name="tab_action_switch_edge">Mover al otro lado de la pantalla</string>
+
+    <string name="notif_channel">Lupa de color</string>
     <string name="notif_title">DaltonPick está listo</string>
-    <string name="notif_text">Desliza la pestaña del borde para abrir la lupa.</string>
+    <string name="notif_text_shown">Desliza la pestaña del borde para abrir la lupa.</string>
+    <string name="notif_text_hidden">La pestaña del borde está oculta.</string>
+    <string name="notif_hide">Ocultar</string>
+    <string name="notif_show">Mostrar</string>
+    <string name="notif_settings">Ajustes</string>
     <string name="notif_stop">Detener</string>
+
+    <string name="tile_label">Lupa de color</string>
+    <string name="tile_shown">Pestaña visible</string>
+    <string name="tile_hidden">Pestaña oculta</string>
+    <string name="tile_needs_setup">Falta configurar</string>
 </resources>

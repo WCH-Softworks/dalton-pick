@@ -81,6 +81,17 @@ class OverlayController(
             return Rect(insets.left, insets.top, insets.right, insets.bottom)
         }
 
+    /** Screen minus system bars only. Sideways, the lens may cross a cutout band; it just avoids the cutout itself. */
+    private val bars: Rect
+        get() {
+            val insets = wm.currentWindowMetrics.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+            return Rect(insets.left, insets.top, insets.right, insets.bottom)
+        }
+
+    /** The camera holes and notches themselves, in screen coordinates. */
+    private val cutouts: List<Rect>
+        get() = wm.currentWindowMetrics.windowInsets.displayCutout?.boundingRects.orEmpty()
+
     /** Lens floats this far above the finger while pulling, so the finger doesn't cover it. */
     private val pullOffsetY get() = (settings.lensSizeDp / 2 + 32) * density
 
@@ -165,7 +176,20 @@ class OverlayController(
     }
 
     private fun tabYFromFraction(fraction: Float) =
-        (fraction * screen.height()).toInt().coerceIn(tabYRange())
+        clearOfCutout((fraction * screen.height()).toInt().coerceIn(tabYRange()), dockedX(onRight))
+
+    /**
+     * In landscape a camera hole can sit on the tab's edge. Slides the tab just past it, to
+     * whichever side is nearer and still on screen.
+     */
+    private fun clearOfCutout(y: Int, x: Int): Int {
+        val range = tabYRange()
+        val hole = cutouts.firstOrNull { Rect.intersects(it, Rect(x, y, x + tabWidthPx, y + tabHeightPx)) } ?: return y
+        val above = hole.top - tabHeightPx
+        val below = hole.bottom
+        val options = listOf(above, below).filter { it in range }
+        return options.minByOrNull { kotlin.math.abs(it - y) } ?: y
+    }
 
     private fun fractionOf(y: Int) = y.toFloat() / screen.height()
 
@@ -175,6 +199,7 @@ class OverlayController(
     }
 
     fun saveTabPosition() {
+        settleTab()
         val fraction = fractionOf(tabParams.y)
         persist { it.copy(tabPosition = fraction) }
     }
@@ -207,16 +232,25 @@ class OverlayController(
     fun endCarry(rawX: Float, rawY: Float) {
         val right = rawX > screen.width() / 2f
         val edge = if (right) Edge.RIGHT else Edge.LEFT
-        val fraction = fractionOf(tabParams.y)
-        settings = settings.copy(edge = edge, tabPosition = fraction)
-        tab.onRightEdge = right
+        settings = settings.copy(edge = edge)
         dockTab(animated = true)
+        val fraction = fractionOf(tabParams.y)
+        settings = settings.copy(tabPosition = fraction)
         persist { it.copy(edge = edge, tabPosition = fraction) }
+    }
+
+    /** After a drag along the edge: if the tab ended up under a camera hole, move it clear. */
+    private fun settleTab() {
+        val y = clearOfCutout(tabParams.y, tabParams.x)
+        if (y == tabParams.y) return
+        tabParams.y = y
+        wm.updateViewLayout(tab, tabParams)
     }
 
     private fun dockTab(animated: Boolean) {
         tab.onRightEdge = onRight
         val target = dockedX(onRight)
+        tabParams.y = clearOfCutout(tabParams.y, target)
         snapAnimator?.cancel()
         if (!animated || !animationsEnabled()) {
             tabParams.x = target
@@ -378,28 +412,45 @@ class OverlayController(
     }
 
     /**
-     * Keeps the lens centre on the screen and the whole label inside the safe area. The label goes
-     * below the lens unless that would run past the bottom, then above.
+     * Keeps the lens centre on the screen and the whole label clear of the system bars and of any
+     * camera cutout. The label goes below the lens unless that would run past the bottom or onto a
+     * cutout, then above.
+     *
+     * Sideways the window only avoids the system bars, not the whole cutout band: in landscape that
+     * band runs the full height of the screen, and clamping to it would clip the lens well short of
+     * the screen edge.
      */
     private fun positionLens(view: LensView, params: WindowManager.LayoutParams) {
         val bounds = screen
         val s = safe
+        val b = bars
         centerX = centerX.coerceIn(0f, bounds.width() - 1f)
         centerY = centerY.coerceIn(0f, bounds.height() - 1f)
         val r = view.lensSizePx / 2f
-        val belowFits = centerY + r + view.gapPx + view.labelHeightPx <= bounds.height() - s.bottom
-        view.labelAbove = !belowFits
-        val minX = s.left
-        val maxX = maxOf(minX, bounds.width() - s.right - view.windowWidthPx)
+
+        val minX = b.left
+        val maxX = maxOf(minX, bounds.width() - b.right - view.windowWidthPx)
         params.x = (centerX - view.windowWidthPx / 2f).toInt().coerceIn(minX, maxX)
         view.lensCenterX = centerX - params.x
-        params.y = if (view.labelAbove) {
-            (centerY - r - view.gapPx - view.labelHeightPx).toInt()
-        } else {
-            (centerY - r).toInt()
+
+        val belowTop = (centerY + r + view.gapPx).toInt()
+        val aboveTop = (centerY - r - view.gapPx - view.labelHeightPx).toInt()
+        val belowOnScreen = belowTop + view.labelHeightPx <= bounds.height() - s.bottom
+        val belowFits = belowOnScreen && !hitsCutout(params.x, belowTop, view)
+        val aboveFits = aboveTop >= s.top && !hitsCutout(params.x, aboveTop, view)
+        view.labelAbove = when {
+            belowFits -> false
+            aboveFits -> true
+            else -> !belowOnScreen // Neither is clear: at least stay on screen.
         }
+        params.y = if (view.labelAbove) aboveTop else (centerY - r).toInt()
         view.pivotX = view.lensCenterX
         view.pivotY = view.lensCenterY
+    }
+
+    private fun hitsCutout(x: Int, labelTop: Int, view: LensView): Boolean {
+        val label = Rect(x, labelTop, x + view.windowWidthPx, labelTop + view.labelHeightPx)
+        return cutouts.any { Rect.intersects(it, label) }
     }
 
     private fun updateSample(view: LensView) {

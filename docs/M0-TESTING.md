@@ -67,4 +67,4 @@ Swatch names that were wrong:
 Anything odd:
 ```
 
-Known so far (Android 16 emulator): A works in 55–58 ms; B works in 22 ms; both sRGB; hiding works on both. The back-gesture fix and the edge-clamped label are in this build but **were not verified on a device yet**.
+Known so far (Android 16 emulator): A works in 55–58 ms; B works in 22 ms; both sRGB; hiding works on both. The back-gesture fix and the edge-clamped label work on the emulator; **not yet checked on a real phone**.

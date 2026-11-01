@@ -24,7 +24,7 @@ Tooling: Android Studio (latest stable), Gradle Kotlin DSL + version catalog, JD
 
 Goal: prove the core mechanism works on real devices before building anything else. The test build is in `app/` (plain Android views, no libraries). How to run it on a phone is in [docs/M0-TESTING.md](docs/M0-TESTING.md).
 
-- [x] **S1 Overlay**: a draggable edge tab and lens over other apps. Works on the Android 16 emulator. **Finding:** the system back gesture captured edge swipes, so the tab now excludes itself from system gestures (needs re-checking on a phone).
+- [x] **S1 Overlay**: a draggable edge tab and lens over other apps. Works on the Android 16 emulator. **Finding:** the system back gesture captured edge swipes, so the tab now excludes itself from system gestures. Re-checked on the emulator with gesture navigation: a pull no longer triggers Back (still to check on a phone).
 - [x] **S2 Capture A** (emulator): `takeScreenshot()` in 55–58 ms, sRGB, and the overlay is hidden from the snapshot.
 - [x] **S3 Capture B** (emulator): MediaProjection in 22 ms. **Finding:** Android 16's consent dialog defaults to "Share one app", and a red recording chip shows. Confirms A as preferred.
 - [ ] **S1–S4 on real phones**: Android 11 / 13 / 14 / 15 / 16 across Pixel, Samsung, Xiaomi. Check colors on Display P3 and "vivid" screen modes.
@@ -43,7 +43,7 @@ Goal: prove the core mechanism works on real devices before building anything el
 - [ ] Expand the golden table toward about 300 entries during palette review.
 - [ ] Palette review by colorblind testers, a color-normal reviewer, and a native speaker of each language.
 
-## M2 — Overlay UI (≈ 1 week) — *in progress*
+## M2 — Overlay UI (≈ 1 week) — *done on the emulator*
 
 Checked on the Android 16 emulator only (Pixel 9 Pro AVD, gesture navigation); nothing here has been seen on a real phone yet.
 
@@ -51,12 +51,12 @@ Checked on the Android 16 emulator only (Pixel 9 Pro AVD, gesture navigation); n
 - [x] `EdgeTabView`: docking left or right, vertical drag, hold-and-carry to snap to the other edge, auto-dim to 30% after 3 s, saved position (as a fraction of screen height, so it survives rotation). TalkBack: double-tap opens the lens; a custom action switches the edge.
 - [x] Pull gesture: tab → lens spring animation (skipped when system animations are off). Fling back to dismiss.
 - [x] `LensView` (Canvas): circular clip, nearest-neighbour scaling from the snapshot, two-tone ring, gapped crosshair.
-- [x] Name label pill: auto-placed above or below the lens, kept inside the safe area (system bars and cutout insets). Shows swatch, name, family and optional hex/RGB. The debug line is hidden unless the developer setting is on. *(Cutout insets are used but not seen on a device that has a cutout in the tested orientation.)*
+- [x] Name label pill: auto-placed above or below the lens, kept clear of the system bars and of the camera cutout itself (flips above or below to avoid it). Shows swatch, name, family and optional hex/RGB. The debug line is hidden unless the developer setting is on.
 - [x] Fine-adjust precision drag (0.25× speed, extra inner ring): long press on the lens, or drag starting outside the circle.
 - [x] Haptic tick when the name changes (setting).
-- [ ] TalkBack announcement, debounced 700 ms and only when the name changed. Written, **not tested with TalkBack running**.
+- [x] TalkBack announcement, debounced 700 ms and only when the name changed. Checked with TalkBack 16 on: opening the lens announces "Light gray, Gray" once and TalkBack speaks it 700 ms later. Debug builds log each announcement (`announced: …` in logcat). `announceForAccessibility` is deprecated in API 36 but still spoken; revisit if a TalkBack update drops it.
 - [x] Rotation: lens dismissed, tab re-docked, MediaProjection virtual display resized. Checked on both backends.
-- [ ] Multi-window and display cutouts. The lens and tab use the safe-area insets, but split-screen/freeform and a cutout edge have not been exercised.
+- [x] Multi-window and display cutouts. Split-screen: the lens reads the right pixel in both halves (overlays cover the whole display, so no change was needed). Landscape with the punch-hole on the tab's edge: the lens used to clip at the cutout band, 156 px in from the screen edge; now only the system bars limit it sideways. The tab slides clear of the hole itself. Freeform windows not tried (off by default on phones).
 - [x] Quick Settings tile (show/hide tab; opens the app when no host is running).
 - [x] Settings in DataStore (`SettingsRepository`) replace `SpikePrefs`: lens size, zoom, edge, auto-dim, sample size, hex, haptics, developer debug line, tab visibility and position. The settings UI on the main screen is still the plain-views test screen; the real one comes in M4.
 

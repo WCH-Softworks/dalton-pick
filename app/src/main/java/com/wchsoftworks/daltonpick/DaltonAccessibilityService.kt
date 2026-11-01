@@ -2,7 +2,9 @@ package com.wchsoftworks.daltonpick
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
+import android.util.Log
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import com.wchsoftworks.daltonpick.capture.A11yCapturer
@@ -16,8 +18,12 @@ import com.wchsoftworks.daltonpick.overlay.OverlayRuntime
 class DaltonAccessibilityService : AccessibilityService() {
     private var runtime: OverlayRuntime? = null
 
+    private val debuggable get() = applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+
     override fun onServiceConnected() {
         instance = this
+        // Debug builds also listen to their own TalkBack announcements, so tests can read them from logcat.
+        if (debuggable) serviceInfo = serviceInfo.apply { eventTypes = eventTypes or AccessibilityEvent.TYPE_ANNOUNCEMENT }
         runtime = OverlayRuntime(
             this,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
@@ -31,7 +37,11 @@ class DaltonAccessibilityService : AccessibilityService() {
         runtime?.onScreenChanged()
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.eventType == AccessibilityEvent.TYPE_ANNOUNCEMENT && event.packageName == packageName) {
+            Log.i("DaltonPick", "announced: ${event.text.joinToString(" ")}")
+        }
+    }
 
     override fun onInterrupt() = Unit
 

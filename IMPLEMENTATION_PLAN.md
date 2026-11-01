@@ -49,7 +49,7 @@ Checked on the Android 16 emulator only (Pixel 9 Pro AVD, gesture navigation); n
 
 - [x] Hosts behind one `OverlayRuntime`: the accessibility service is the main path, MediaProjection (`ProjectionOverlayService`, foreground) is the fallback, both behind `ScreenCapturer`. Persistent notification with Hide/Show and Settings (plus Stop on the fallback). **Note:** the accessibility host posts a normal ongoing notification, not a foreground-service one, so on Android 14+ the user can swipe it away; the Quick Settings tile still works.
 - [x] `EdgeTabView`: docking left or right, vertical drag, hold-and-carry to snap to the other edge, auto-dim to 30% after 3 s, saved position (as a fraction of screen height, so it survives rotation). TalkBack: double-tap opens the lens; a custom action switches the edge.
-- [x] Pull gesture: tab → lens spring animation (skipped when system animations are off). Fling back to dismiss.
+- [x] Pull gesture: tab → lens spring animation (skipped when system animations are off). Putting the lens away: a ✕ on the label, dragging it back onto its edge (it fades over the drop zone), a fling toward that edge (1500 dp/s), or tapping the tab; TalkBack gets "Close lens" and "Look again" actions. *(✕ and drop zone added after testing showed fling-only wasn't discoverable; both checked on the emulator.)*
 - [x] `LensView` (Canvas): circular clip, nearest-neighbour scaling from the snapshot, two-tone ring, gapped crosshair.
 - [x] Name label pill: auto-placed above or below the lens, kept clear of the system bars and of the camera cutout itself (flips above or below to avoid it). Shows swatch, name, family and optional hex/RGB. The debug line is hidden unless the developer setting is on.
 - [x] Fine-adjust precision drag (0.25× speed, extra inner ring): long press on the lens, or drag starting outside the circle.
@@ -78,6 +78,7 @@ Most of this landed with M0 and M2; the rest is error handling. Checked on the A
   - Recording stopped from the system chip: the fallback stops and says so. *(Written, not exercised: the emulator has no easy way to tap the chip from adb.)*
   - "Display over other apps" revoked: the fallback notices, stops, and asks for it again. A refused overlay window also stops the host instead of crashing.
   - Turning on the accessibility service while the fallback runs: the fallback stops and the accessibility host takes over, with one tab.
+- [x] **Stale snapshot after scrolling** (found in testing): the lens stays open after the finger lifts, so the app underneath can scroll. The lens now re-snapshots 250 ms after the last scroll or window-change event (accessibility host) or 700 ms after a touch outside it (both hosts, and apps that send no scroll events). It blinks once per refresh. Checked on the emulator: scrolling the test chart under the lens updated it.
 ## M4 — Main app (≈ 4 days) — *done; TalkBack walk-through still to do*
 
 Jetpack Compose + Material 3 (AndroidX only), replacing the plain-views test screen. Checked on the Android 16 emulator (light theme, gesture navigation) and on a Galaxy S22 with Android 16 (dark theme, pt-BR, 3-button navigation), screens only; the lens itself was not used on the phone.

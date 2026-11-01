@@ -43,7 +43,7 @@ The app is **free, with no ads, no purchases and no account**. A Ko-fi link in t
   - A small swatch of the sampled color.
 - **Move**: drag the lens anywhere. The sample point is the center of the lens.
 - **Precision**: a fine-adjust mode that moves the lens at a fraction of finger speed, so the finger doesn't hide the target. It turns on after a long press, or after dragging from outside the lens.
-- **Dismiss**: fling the lens toward the edge it came from, or tap the tab. It returns to idle.
+- **Dismiss**: tap the ✕ at the end of the label, drag the lens back onto its edge and let go (it fades while over the drop zone), fling it toward that edge, or tap the tab. It returns to idle. TalkBack offers "Close lens" as an action. *(The ✕ and the drop zone were added after testing: fling-only dismissal wasn't discoverable.)*
 - **Freeze/refresh**: see §5.2. A tap on the label (or a small refresh dot) takes a new snapshot of the screen.
 
 ### 4.3 Feedback
@@ -83,7 +83,7 @@ The app is **free, with no ads, no purchases and no account**. A Ko-fi link in t
 1. When the user starts pulling the tab, the overlay hides the lens for one frame. The edge tab is drawn away from the capture area.
 2. Capture **one full-screen bitmap**.
 3. Show the lens. It magnifies and samples from the **frozen snapshot**, not from the live screen.
-4. Underlying content can't scroll while the user is dragging the lens anyway, so the snapshot stays accurate. Tap refresh, or put the lens away and pull it again, to take a new snapshot.
+4. The lens stays open after the finger lifts, so the app underneath **can** scroll or change screen while it is open (found in testing). The lens then takes a new snapshot once things settle: 250 ms after the last scroll or window-change event from the accessibility service, or 700 ms after a touch outside the lens (FLAG_WATCH_OUTSIDE_TOUCH), which also covers apps that send no scroll events and the screen-recording fallback. Each refresh hides the lens for a moment, so it blinks once. Refreshes wait while a finger is on the lens. Tapping the label still refreshes by hand.
 
 **Capture backends** (chosen by a spike, M0):
 

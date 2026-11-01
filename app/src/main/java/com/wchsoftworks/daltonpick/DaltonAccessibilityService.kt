@@ -37,9 +37,20 @@ class DaltonAccessibilityService : AccessibilityService() {
         runtime?.onScreenChanged()
     }
 
+    /**
+     * Only event types are used, never the content of other apps (canRetrieveWindowContent is off):
+     * a scroll or a new screen underneath means the lens's snapshot is out of date.
+     */
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event?.eventType == AccessibilityEvent.TYPE_ANNOUNCEMENT && event.packageName == packageName) {
-            Log.i("DaltonPick", "announced: ${event.text.joinToString(" ")}")
+        event ?: return
+        if (event.packageName == packageName) {
+            if (event.eventType == AccessibilityEvent.TYPE_ANNOUNCEMENT) Log.i("DaltonPick", "announced: ${event.text.joinToString(" ")}")
+            return
+        }
+        when (event.eventType) {
+            AccessibilityEvent.TYPE_VIEW_SCROLLED,
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
+            -> runtime?.onContentChanged()
         }
     }
 

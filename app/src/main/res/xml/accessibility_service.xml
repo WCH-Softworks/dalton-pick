@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Events: scrolls and screen changes in other apps tell the open lens to refresh its snapshot.
+  Only the event types are used; canRetrieveWindowContent stays off, so no app content is read.
+  notificationTimeout is short so a refresh follows soon after scrolling stops.
+-->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeViewScrolled"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagDefault"
     android:canRetrieveWindowContent="false"
     android:canTakeScreenshot="true"
     android:description="@string/a11y_description"
     android:isAccessibilityTool="true"
-    android:notificationTimeout="1000" />
+    android:notificationTimeout="100" />

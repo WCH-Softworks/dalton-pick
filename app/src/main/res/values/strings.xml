@@ -144,6 +144,8 @@
 
     <string name="tab_description">DaltonPick color lens. Double-tap to open.</string>
     <string name="tab_action_switch_edge">Move to the other side of the screen</string>
+    <string name="lens_action_close">Close lens</string>
+    <string name="lens_action_refresh">Look again</string>
 
     <string name="notif_channel">Color lens</string>
     <string name="notif_title">DaltonPick is ready</string>

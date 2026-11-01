@@ -143,6 +143,8 @@
 
     <string name="tab_description">Lupa de cores do DaltonPick. Toque duas vezes para abrir.</string>
     <string name="tab_action_switch_edge">Mover para o outro lado da tela</string>
+    <string name="lens_action_close">Fechar a lupa</string>
+    <string name="lens_action_refresh">Olhar de novo</string>
 
     <string name="notif_channel">Lupa de cores</string>
     <string name="notif_title">DaltonPick está pronto</string>

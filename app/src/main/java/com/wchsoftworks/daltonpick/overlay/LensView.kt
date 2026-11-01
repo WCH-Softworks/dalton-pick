@@ -8,11 +8,14 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
+import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.accessibility.AccessibilityNodeInfo
+import com.wchsoftworks.daltonpick.R
 import com.wchsoftworks.daltonpick.capture.Snapshot
 import com.wchsoftworks.daltonpick.colorengine.ColorLabel
 import com.wchsoftworks.daltonpick.colorengine.Srgb
@@ -80,6 +83,9 @@ class LensView(
     private val nameText = text(18f, 0xFFFFFFFF.toInt(), Typeface.DEFAULT_BOLD)
     private val detailText = text(13f, 0xFFE0E0E0.toInt(), Typeface.DEFAULT)
     private val smallText = text(11f, 0xFFB8B8B8.toInt(), Typeface.MONOSPACE)
+    private val closePaint = stroke(2f, 0xFFE0E0E0.toInt()).apply { strokeCap = Paint.Cap.ROUND }
+    private val closeSizePx = (CLOSE_SIZE_DP * density).toInt()
+    private val closeRect = RectF()
 
     private val clip = Path()
     private val src = Rect()
@@ -188,8 +194,17 @@ class LensView(
         canvas.drawCircle(swatchCx, swatchCy, swatchR, swatchPaint)
         canvas.drawCircle(swatchCx, swatchCy, swatchR, swatchRing)
 
+        // ✕ on the right end of the label: the obvious way to put the lens away.
+        val closeLeft = width - closeSizePx
+        closeRect.set(closeLeft.toFloat(), top, width.toFloat(), top + labelHeightPx)
+        val cx = closeRect.centerX()
+        val cy = top + minOf(labelHeightPx / 2f, pad + closeSizePx / 2f)
+        val arm = 7 * density
+        canvas.drawLine(cx - arm, cy - arm, cx + arm, cy + arm, closePaint)
+        canvas.drawLine(cx - arm, cy + arm, cx + arm, cy - arm, closePaint)
+
         val textX = swatchCx + swatchR + pad
-        val maxWidth = width - textX - pad
+        val maxWidth = closeLeft - textX
         var y = top + pad - nameText.ascent()
         canvas.drawText(ellipsize(label.name, nameText, maxWidth), textX, y, nameText)
         if (label.detail.isNotEmpty()) {
@@ -281,7 +296,7 @@ class LensView(
                 }
                 if (moved) {
                     val f = if (precision) PRECISION_FACTOR else 1f
-                    controller.dragLensBy(dx * f, dy * f)
+                    controller.dragLensBy(dx * f, dy * f, precise = precision)
                 }
             }
 
@@ -292,10 +307,14 @@ class LensView(
                 val vx = velocity?.xVelocity ?: 0f
                 velocity?.recycle()
                 velocity = null
-                val tappedLabel =event.y >= labelTop && event.y <= labelTop + labelHeightPx
+                val tappedLabel = event.y >= labelTop && event.y <= labelTop + labelHeightPx
+                val tappedClose = tappedLabel && event.x >= width - closeSizePx
+                val dragged = moved && !precision
+                controller.lensTouchEnded()
                 when {
-                    moved && !precision && controller.isFlingTowardTab(vx) -> controller.dismissLens()
+                    dragged && (controller.isFlingTowardTab(vx) || controller.inDropZone()) -> controller.dismissLens()
                     moved || precision -> controller.endLensDrag()
+                    tappedClose -> controller.dismissLens()
                     tappedLabel -> controller.refresh()
                 }
                 endPrecision()
@@ -305,8 +324,12 @@ class LensView(
                 removeCallbacks(enterPrecisionOnHold)
                 velocity?.recycle()
                 velocity = null
+                controller.lensTouchEnded()
                 endPrecision()
             }
+
+            // A touch somewhere else on screen (the app underneath may be scrolling).
+            MotionEvent.ACTION_OUTSIDE -> controller.onOutsideTouch()
         }
         return true
     }
@@ -318,9 +341,25 @@ class LensView(
         }
     }
 
+    // TalkBack: the lens is read as its color name; these put it away or take a new snapshot.
+    override fun onInitializeAccessibilityNodeInfo(info: AccessibilityNodeInfo) {
+        super.onInitializeAccessibilityNodeInfo(info)
+        info.addAction(AccessibilityNodeInfo.AccessibilityAction(R.id.action_close_lens, context.getString(R.string.lens_action_close)))
+        info.addAction(AccessibilityNodeInfo.AccessibilityAction(R.id.action_refresh_lens, context.getString(R.string.lens_action_refresh)))
+    }
+
+    override fun performAccessibilityAction(action: Int, arguments: Bundle?): Boolean = when (action) {
+        R.id.action_close_lens -> true.also { controller.dismissLens() }
+        R.id.action_refresh_lens -> true.also { controller.refresh() }
+        else -> super.performAccessibilityAction(action, arguments)
+    }
+
     companion object {
         const val WINDOW_MIN_WIDTH_DP = 240
         const val PRECISION_FACTOR = 0.25f
+
+        /** Touch area for the ✕ at the right end of the label. */
+        const val CLOSE_SIZE_DP = 44
 
         /** Name and family lines, plus one line each for the optional hex and debug text. */
         fun labelHeightDp(showHex: Boolean, showDebug: Boolean): Int =

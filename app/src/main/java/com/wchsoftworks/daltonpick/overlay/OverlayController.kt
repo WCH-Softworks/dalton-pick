@@ -346,26 +346,74 @@ class OverlayController(
 
     // --- Lens
 
+    /** A finger is on the lens. Automatic refreshes wait for it to lift, so the lens doesn't blink mid-drag. */
+    private var lensTouched = false
+
     fun beginLensDrag() {
         dragStartX = centerX
         dragStartY = centerY
+        lensTouched = true
         wakeTab()
     }
 
-    fun dragLensBy(dx: Float, dy: Float) {
+    /** [precise] drags never offer the drop zone: that's how to sample right at the edge. */
+    fun dragLensBy(dx: Float, dy: Float, precise: Boolean) {
         centerX = dragStartX + dx
         centerY = dragStartY + dy
         placeLens()
+        // Fade the lens over the drop zone, so letting go there clearly puts it away.
+        lens?.alpha = if (!precise && inDropZone()) DROP_ZONE_ALPHA else 1f
     }
 
     fun endLensDrag() = announceSoon()
 
+    fun lensTouchEnded() {
+        lensTouched = false
+        lens?.alpha = 1f
+        if (refreshWaiting) {
+            refreshWaiting = false
+            scheduleRefresh(SETTLE_AFTER_TOUCH_MS)
+        }
+    }
+
+    /** The lens centre is at the tab's edge: releasing it there puts it away. */
+    fun inDropZone(): Boolean {
+        val zone = DROP_ZONE_DP * density
+        return if (onRight) centerX >= screen.width() - zone else centerX <= zone
+    }
+
     fun isFlingTowardTab(velocityX: Float): Boolean {
-        val threshold = 2500 * density
+        val threshold = FLING_DP_PER_S * density
         return if (onRight) velocityX > threshold else velocityX < -threshold
     }
 
     fun refresh() = takeSnapshot { placeLens() }
+
+    // --- Keeping the snapshot current. The app underneath can scroll or change screen while the
+    // lens is open (the user lets go of the lens and scrolls), so take a new snapshot once it settles.
+
+    private var refreshWaiting = false
+
+    private val autoRefresh = Runnable {
+        when {
+            lens == null -> Unit
+            lensTouched -> refreshWaiting = true
+            capturing -> scheduleRefresh(SETTLE_AFTER_SCROLL_MS)
+            else -> refresh()
+        }
+    }
+
+    /** The accessibility service saw the app underneath scroll or change screen. */
+    fun onContentChanged() = scheduleRefresh(SETTLE_AFTER_SCROLL_MS)
+
+    /** A touch landed outside the lens: probably a scroll or tap on the app underneath. */
+    fun onOutsideTouch() = scheduleRefresh(SETTLE_AFTER_TOUCH_MS)
+
+    private fun scheduleRefresh(delayMs: Long) {
+        if (lens == null) return
+        main.removeCallbacks(autoRefresh)
+        main.postDelayed(autoRefresh, delayMs)
+    }
 
     fun dismissLens(animated: Boolean = true) {
         val view = lens ?: return
@@ -375,6 +423,9 @@ class OverlayController(
         snapshot = null
         namer.reset()
         main.removeCallbacks(announce)
+        main.removeCallbacks(autoRefresh)
+        refreshWaiting = false
+        lensTouched = false
         lastAnnounced = null
 
         val release = Runnable {
@@ -393,7 +444,10 @@ class OverlayController(
     private fun showLens() {
         if (lens != null) return placeLens()
         val view = LensView(context, this, settings)
-        val params = overlayParams(view.windowWidthPx, view.windowHeightPx)
+        val params = overlayParams(view.windowWidthPx, view.windowHeightPx).apply {
+            // One ACTION_OUTSIDE per touch elsewhere: the cue that the app underneath may have moved.
+            flags = flags or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+        }
         positionLens(view, params)
         if (!addWindow(view, params)) return
         lens = view
@@ -597,6 +651,16 @@ class OverlayController(
         private const val SNAP_MS = 160L
         private const val DISMISS_MS = 140L
         private const val ANNOUNCE_DEBOUNCE_MS = 700L
+
+        /** Scroll events keep coming while content moves; refresh this long after the last one. */
+        private const val SETTLE_AFTER_SCROLL_MS = 250L
+
+        /** Without scroll events (fallback host, apps that don't send them), allow for a fling to finish. */
+        private const val SETTLE_AFTER_TOUCH_MS = 700L
+
+        private const val DROP_ZONE_DP = 24
+        private const val DROP_ZONE_ALPHA = 0.45f
+        private const val FLING_DP_PER_S = 1500
         private const val EXTRA_CAPTURE_DELAY_MS = 32L
         private const val RETRY_DELAY_MS = 350L
         private const val CAPTURE_TIMEOUT_MS = 3000L

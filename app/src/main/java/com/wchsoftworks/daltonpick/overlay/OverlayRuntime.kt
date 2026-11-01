@@ -65,6 +65,8 @@ class OverlayRuntime(
 
     fun onScreenChanged() = controller.onScreenChanged()
 
+    fun onContentChanged() = controller.onContentChanged()
+
     fun stop() {
         if (stopped) return
         stopped = true

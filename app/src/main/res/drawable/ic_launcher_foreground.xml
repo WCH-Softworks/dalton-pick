@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The lens: a ring with a gapped crosshair, sized for the 66dp safe zone of an adaptive icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Lens glass -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,30a24,24 0,1 1,0 48a24,24 0,1 1,0 -48z" />
+    <!-- Ring -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF1B2A4A"
+        android:strokeWidth="4"
+        android:pathData="M54,30a24,24 0,1 1,0 48a24,24 0,1 1,0 -48z" />
+    <!-- Crosshair arms with a gap in the middle -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF1B2A4A"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M54,40v9M54,59v9M40,54h9M59,54h9" />
+    <!-- Sample box -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF1B2A4A"
+        android:strokeWidth="1.5"
+        android:pathData="M51.5,51.5h5v5h-5z" />
+</vector>

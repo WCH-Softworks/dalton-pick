@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -51,6 +52,7 @@ class OverlayRuntime(
             it.onEnded()
         }
         active = this
+        runningHost.value = capturer.name
         scope.launch {
             repo.flow.collect { settings ->
                 controller.apply(settings)
@@ -66,7 +68,10 @@ class OverlayRuntime(
     fun stop() {
         if (stopped) return
         stopped = true
-        if (active === this) active = null
+        if (active === this) {
+            active = null
+            runningHost.value = null
+        }
         scope.cancel()
         controller.destroy()
         capturer.release()
@@ -79,6 +84,9 @@ class OverlayRuntime(
         @Volatile
         var active: OverlayRuntime? = null
             private set
+
+        /** The running host's capture backend ([ScreenCapturer.name]), or null; the main app watches this. */
+        val runningHost = MutableStateFlow<String?>(null)
 
         fun refreshTile(context: Context) {
             TileService.requestListeningState(context, ComponentName(context, ToggleTileService::class.java))

@@ -78,15 +78,19 @@ Most of this landed with M0 and M2; the rest is error handling. Checked on the A
   - Recording stopped from the system chip: the fallback stops and says so. *(Written, not exercised: the emulator has no easy way to tap the chip from adb.)*
   - "Display over other apps" revoked: the fallback notices, stops, and asks for it again. A refused overlay window also stops the host instead of crashing.
   - Turning on the accessibility service while the fallback runs: the fallback stops and the accessibility host takes over, with one tab.
-## M4 — Main app (≈ 4 days)
+## M4 — Main app (≈ 4 days) — *done; TalkBack walk-through still to do*
 
-- [ ] Onboarding flow: explanation → overlay permission → accessibility (or projection) permission → notifications → practice screen → one-line Ko-fi mention.
-- [ ] Permission status screen with deep links to fix each missing grant.
-- [ ] Settings screen (the DataStore repository exists since M2): lens size, zoom, edge, auto-dim, sample size, hex/RGB, haptics, language (per-app language, en/es/pt-BR).
-- [ ] Test chart screen (a swatch grid that includes common confusion pairs).
-- [ ] About screen: version, privacy policy link, open-source licenses, **Support on Ko-fi** button (`ACTION_VIEW` intent, URL in one constant).
-- [ ] Theming (light/dark), font-scale and TalkBack QA.
+Jetpack Compose + Material 3 (AndroidX only), replacing the plain-views test screen. Checked on the Android 16 emulator (light theme, gesture navigation) and on a Galaxy S22 with Android 16 (dark theme, pt-BR, 3-button navigation), screens only; the lens itself was not used on the phone.
 
+- [x] Onboarding, shown once: what the app does → turn on the accessibility service (with "Switch greyed out?" help for sideloaded installs) → notifications (Android 13+) → practice on the test chart → done, with the one Ko-fi line. Every step can be skipped. "Display over other apps" is not asked for here: only the screen-recording fallback needs it.
+- [x] Home doubles as the permission status screen: lens state, accessibility service and notifications with a fix button each, and the screen-recording fallback (overlay permission, start/stop) folded away at the bottom. Re-checked whenever the app comes back to the front. "Open Accessibility settings" scrolls to and highlights DaltonPick's row.
+- [x] Settings: edge tab (show, edge, auto-dim), lens (size, zoom, sample size), label (hex/RGB, haptics), language, developer (capture details, secure-screen test). The notification's Settings button opens this screen directly.
+- [x] Language: Android 13+ per-app language (System / English / Español / Português (Brasil)); the overlay label follows it too. Android 11–12 follow the system language, so the section is hidden there.
+- [x] Test chart: basic colors, six commonly confused pairs, and the red→green gradient, each with the name the lens should give.
+- [x] About: version, "free, no ads, never goes online", **Support on Ko-fi ☕** (opens the browser; `Links.KOFI` is the one constant), privacy policy, source code, open-source licenses (MIT text plus the AndroidX/Kotlin libraries under Apache 2.0, linked), and a pointer to Android's own Color correction. **Note:** the privacy link points at the file in the GitHub repo until the policy is hosted (M6).
+- [x] Theming: light and dark, with wallpaper colors on Android 12+. States are spelled out ("✓ On" / "✕ Off"), never color alone. 200% font scale checked on Home, Settings and About.
+- [x] Launcher icon: adaptive lens-and-crosshair over a color wheel, with a monochrome layer for themed icons.
+- [ ] TalkBack walk-through of the main app. Screens use Compose's standard semantics (switches, radio groups, headings, state descriptions, swatch names), but a full pass with TalkBack running was not done: injected taps on the emulator don't drive TalkBack reliably. Do it by hand on a phone.
 ## M4b — Camera mode (≈ 4 days)
 
 - [ ] CameraX preview (AndroidX, open source, no network) full screen with the same `LensView` drawing and label.

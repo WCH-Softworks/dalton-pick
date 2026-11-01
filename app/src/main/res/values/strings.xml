@@ -3,34 +3,118 @@
     <string name="app_name" translatable="false">DaltonPick</string>
     <string name="a11y_description">Lets DaltonPick read the colors on your screen so it can name them. Screen images stay on your device and are never saved.</string>
 
-    <string name="main_title">DaltonPick: test and settings screen</string>
-    <string name="status_overlay">Display over other apps: %1$s</string>
-    <string name="status_a11y">Accessibility service: %1$s</string>
-    <string name="status_on">on</string>
-    <string name="status_off">off</string>
+    <!-- Shared -->
+    <string name="back">Back</string>
+    <string name="state_on">On</string>
+    <string name="state_off">Off</string>
+    <string name="btn_allow">Allow</string>
+    <string name="btn_turn_on">Turn on</string>
+    <string name="btn_open_accessibility">Open Accessibility settings</string>
+    <string name="btn_app_info">Open App info</string>
+    <string name="no_browser">No browser found to open this page.</string>
 
-    <string name="btn_grant_overlay">Allow display over other apps</string>
-    <string name="btn_open_a11y">Open Accessibility settings</string>
-    <string name="btn_start_projection">Use screen-recording capture instead</string>
-    <string name="btn_stop">Stop screen-recording capture</string>
-    <string name="swatches_title">Test swatches. The name under each one is what the lens should say.</string>
+    <!-- Home -->
+    <string name="lens_on">The lens is ready</string>
+    <string name="lens_on_fallback">The lens is on (screen recording)</string>
+    <string name="lens_starting">The lens is starting…</string>
+    <string name="lens_off">The lens is off</string>
+    <string name="lens_how_to">Pull the small tab on the edge of your screen toward the middle. The lens names the color under its crosshair.</string>
+    <string name="lens_off_how_to">Turn on the DaltonPick accessibility service below to use the lens over any app.</string>
+    <string name="home_setup">Setup</string>
+    <string name="home_more">More</string>
+    <string name="req_accessibility">Accessibility service</string>
+    <string name="req_accessibility_why">Lets the lens see the screen. DaltonPick only looks when you pull the lens, and never saves or sends what it sees.</string>
+    <string name="req_notifications">Notifications</string>
+    <string name="req_notifications_why">Adds Hide and Settings buttons to a quiet notification.</string>
+    <string name="req_overlay">Display over other apps</string>
+    <string name="req_overlay_why">Lets screen-recording mode show the lens over other apps.</string>
+    <string name="restricted_question">Switch greyed out?</string>
+    <string name="restricted_help">Android limits this setting for apps not installed from a store. Open App info, tap ⋮ (top right), choose “Allow restricted settings”, then try again.</string>
+    <string name="fallback_title">Other way to see the screen</string>
+    <string name="fallback_show">Use screen recording instead</string>
+    <string name="fallback_teaser">For phones where the accessibility service can’t be used.</string>
+    <string name="fallback_explain">Screen recording works without the accessibility service, but Android asks for permission each time it starts and shows a recording icon while it runs.</string>
+    <string name="btn_start_projection">Start screen recording</string>
+    <string name="btn_stop_fallback">Stop screen recording</string>
+    <string name="accessibility_active">The accessibility service is on and is used first. Turn it off to use screen recording.</string>
 
+    <!-- Settings -->
     <string name="settings_title">Settings</string>
+    <string name="settings_tab">Edge tab</string>
     <string name="setting_tab_visible">Show the edge tab</string>
-    <string name="setting_edge_right">Tab on the right edge</string>
+    <string name="setting_edge">Screen edge</string>
+    <string name="edge_left">Left</string>
+    <string name="edge_right">Right</string>
     <string name="setting_auto_dim">Dim the tab when idle</string>
+    <string name="setting_auto_dim_hint">Fades the tab after 3 seconds. It brightens again when you touch it.</string>
+    <string name="settings_lens">Lens</string>
     <string name="setting_lens_size">Lens size: %1$d dp</string>
     <string name="setting_zoom">Zoom: %1$d×</string>
-    <string name="setting_sample_size">Sample size: %1$d×%1$d pixels</string>
+    <string name="setting_sample">Sample size</string>
+    <string name="sample_size_option">%1$d×%1$d</string>
+    <string name="setting_sample_hint">A larger sample averages a few pixels, which steadies the name on photos and soft edges.</string>
+    <string name="settings_label">Label</string>
     <string name="setting_show_hex">Show hex and RGB values</string>
     <string name="setting_haptics">Vibrate when the name changes</string>
+    <string name="settings_language">Language</string>
+    <string name="language_system">System default</string>
     <string name="setting_developer">Developer</string>
     <string name="setting_show_debug">Show capture details in the label</string>
     <string name="setting_secure_test">Hide this screen from screenshots (to test protected apps)</string>
 
-    <string name="a11y_not_enabled">Turn on the DaltonPick accessibility service first.</string>
-    <string name="overlay_not_granted">Allow display over other apps first.</string>
-    <string name="accessibility_active">The accessibility service is on and is used first. Turn it off to try screen-recording capture.</string>
+    <!-- Test chart -->
+    <string name="test_chart_title">Test chart</string>
+    <string name="test_chart_subtitle">Practice with known colors</string>
+    <string name="test_chart_intro">The name under each color is what the lens should say. Pull the lens over them to practice.</string>
+    <string name="chart_basics">Basic colors</string>
+    <string name="chart_confusions">Often confused</string>
+    <string name="chart_confusions_hint">Pairs that people with color blindness often mix up.</string>
+    <string name="chart_gradient">Red to green</string>
+    <string name="chart_gradient_hint">Drag the lens slowly across. The name should change in a few clear steps.</string>
+
+    <!-- About -->
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_free">Free, with no ads, no tracking and no account. DaltonPick never goes online.</string>
+    <string name="about_support">Support DaltonPick</string>
+    <string name="about_support_text">If DaltonPick helps you, you can buy me a coffee.</string>
+    <string name="btn_kofi">Support on Ko-fi ☕</string>
+    <string name="about_support_nothing_unlocked">Opens Ko-fi in your browser. Supporting unlocks nothing: every feature is free for everyone.</string>
+    <string name="about_more">More</string>
+    <string name="about_privacy">Privacy policy</string>
+    <string name="about_privacy_summary">No data is collected or shared.</string>
+    <string name="about_source">Source code</string>
+    <string name="about_color_correction">Color correction</string>
+    <string name="about_color_correction_summary">Android can also recolor the whole screen. Find it in Accessibility settings.</string>
+    <string name="licenses_title">Open-source licenses</string>
+    <string name="licenses_libraries">Libraries</string>
+    <string name="licenses_apache">These libraries are used under the Apache License 2.0:</string>
+    <string name="licenses_apache_link">Apache License 2.0</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_start">Start</string>
+    <string name="onboarding_progress">%1$d of %2$d</string>
+    <string name="onb_welcome_title">Name any color on your screen</string>
+    <string name="onb_welcome_body">DaltonPick waits as a small tab on the edge of your screen. Pull it out and a round lens appears. Put the crosshair on any color and the lens tells you its name, like “Olive green” or “Dusty rose”.</string>
+    <string name="onb_welcome_privacy">Screen images stay on your phone. They are never saved or sent anywhere.</string>
+    <string name="onb_lens_title">Turn on the lens</string>
+    <string name="onb_lens_body">To see colors in other apps, DaltonPick uses an accessibility service.</string>
+    <string name="onb_lens_warning">Android will warn that the service can see your screen. DaltonPick only looks when you pull the lens, and never saves or sends what it sees.</string>
+    <string name="onb_lens_steps">In Accessibility settings, open DaltonPick and turn it on.</string>
+    <string name="onb_notifications_title">Quick controls</string>
+    <string name="onb_notifications_body">Allow notifications to get a quiet notification with Hide and Settings buttons. You can also add a Quick Settings tile.</string>
+    <string name="onb_notifications_done">Notifications are allowed.</string>
+    <string name="onb_practice_title">Try it</string>
+    <string name="onb_practice_body">Pull the tab on the edge of the screen toward the middle, then move the lens over these colors. Tap the tab to put the lens away.</string>
+    <string name="onb_practice_lens_off">The lens is off, so you can’t try it yet. You can turn it on later from the home screen.</string>
+    <string name="onb_done_title">You’re all set</string>
+    <string name="onb_done_body">You can change the lens size, zoom and edge in Settings.</string>
+    <string name="onb_kofi_line">DaltonPick is free and ad-free. If it helps you, you can %1$s.</string>
+    <string name="onb_kofi_link">buy me a coffee</string>
+
+    <!-- Overlay -->
     <string name="protected_content">Content hidden</string>
     <string name="protected_content_detail">The app blocks capture</string>
     <string name="capture_failed">Couldn’t read the screen. Try again.</string>

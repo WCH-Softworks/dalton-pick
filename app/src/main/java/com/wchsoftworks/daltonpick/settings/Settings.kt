@@ -25,6 +25,8 @@ data class Settings(
     val tabVisible: Boolean = true,
     /** Tab's top edge as a fraction of the screen height, so it survives rotation. */
     val tabPosition: Float = DEFAULT_TAB_POSITION,
+    /** First-run onboarding finished (or skipped); the app opens on the home screen after that. */
+    val onboardingDone: Boolean = false,
 ) {
     val sampleRadius: Int get() = sampleSize / 2
 
@@ -50,6 +52,7 @@ internal object SettingsKeys {
     val showDebug = booleanPreferencesKey("show_debug")
     val tabVisible = booleanPreferencesKey("tab_visible")
     val tabPosition = floatPreferencesKey("tab_position")
+    val onboardingDone = booleanPreferencesKey("onboarding_done")
 }
 
 /** Reads stored values, falling back to defaults and clamping anything out of range. */
@@ -67,6 +70,7 @@ internal fun Preferences.toSettings(): Settings {
         showDebug = this[SettingsKeys.showDebug] ?: d.showDebug,
         tabVisible = this[SettingsKeys.tabVisible] ?: d.tabVisible,
         tabPosition = (this[SettingsKeys.tabPosition] ?: d.tabPosition).coerceIn(0f, 1f),
+        onboardingDone = this[SettingsKeys.onboardingDone] ?: d.onboardingDone,
     )
 }
 
@@ -81,4 +85,5 @@ internal fun MutablePreferences.write(s: Settings) {
     this[SettingsKeys.showDebug] = s.showDebug
     this[SettingsKeys.tabVisible] = s.tabVisible
     this[SettingsKeys.tabPosition] = s.tabPosition
+    this[SettingsKeys.onboardingDone] = s.onboardingDone
 }

@@ -2,34 +2,118 @@
 <resources>
     <string name="a11y_description">Permite que o DaltonPick leia as cores da sua tela para dar nome a elas. As imagens da tela ficam no seu aparelho e nunca são salvas.</string>
 
-    <string name="main_title">DaltonPick: tela de teste e ajustes</string>
-    <string name="status_overlay">Sobrepor a outros apps: %1$s</string>
-    <string name="status_a11y">Serviço de acessibilidade: %1$s</string>
-    <string name="status_on">ativado</string>
-    <string name="status_off">desativado</string>
+    <!-- Shared -->
+    <string name="back">Voltar</string>
+    <string name="state_on">Ativado</string>
+    <string name="state_off">Desativado</string>
+    <string name="btn_allow">Permitir</string>
+    <string name="btn_turn_on">Ativar</string>
+    <string name="btn_open_accessibility">Abrir configurações de acessibilidade</string>
+    <string name="btn_app_info">Abrir informações do app</string>
+    <string name="no_browser">Nenhum navegador encontrado para abrir esta página.</string>
 
-    <string name="btn_grant_overlay">Permitir sobrepor a outros apps</string>
-    <string name="btn_open_a11y">Abrir configurações de acessibilidade</string>
-    <string name="btn_start_projection">Usar captura por gravação de tela</string>
-    <string name="btn_stop">Parar captura por gravação de tela</string>
-    <string name="swatches_title">Amostras de teste. O nome embaixo de cada uma é o que a lupa deve dizer.</string>
+    <!-- Home -->
+    <string name="lens_on">A lupa está pronta</string>
+    <string name="lens_on_fallback">A lupa está ativa (gravação de tela)</string>
+    <string name="lens_starting">A lupa está iniciando…</string>
+    <string name="lens_off">A lupa está desativada</string>
+    <string name="lens_how_to">Puxe a pequena aba da borda da tela em direção ao centro. A lupa diz o nome da cor sob a mira.</string>
+    <string name="lens_off_how_to">Ative abaixo o serviço de acessibilidade do DaltonPick para usar a lupa sobre qualquer app.</string>
+    <string name="home_setup">Configuração</string>
+    <string name="home_more">Mais</string>
+    <string name="req_accessibility">Serviço de acessibilidade</string>
+    <string name="req_accessibility_why">Permite que a lupa veja a tela. O DaltonPick só olha quando você puxa a lupa e nunca salva nem envia o que vê.</string>
+    <string name="req_notifications">Notificações</string>
+    <string name="req_notifications_why">Adiciona botões de Esconder e Ajustes a uma notificação silenciosa.</string>
+    <string name="req_overlay">Sobrepor a outros apps</string>
+    <string name="req_overlay_why">Permite que o modo de gravação de tela mostre a lupa sobre outros apps.</string>
+    <string name="restricted_question">A chave está desativada?</string>
+    <string name="restricted_help">O Android limita esta configuração para apps que não foram instalados por uma loja. Abra as informações do app, toque em ⋮ (canto superior direito), escolha “Permitir configurações restritas” e tente de novo.</string>
+    <string name="fallback_title">Outro jeito de ver a tela</string>
+    <string name="fallback_show">Usar gravação de tela</string>
+    <string name="fallback_teaser">Para celulares em que o serviço de acessibilidade não pode ser usado.</string>
+    <string name="fallback_explain">A gravação de tela funciona sem o serviço de acessibilidade, mas o Android pede permissão toda vez que ela começa e mostra um ícone de gravação enquanto está ativa.</string>
+    <string name="btn_start_projection">Iniciar gravação de tela</string>
+    <string name="btn_stop_fallback">Parar gravação de tela</string>
+    <string name="accessibility_active">O serviço de acessibilidade está ativado e é usado primeiro. Desative-o para usar a gravação de tela.</string>
 
+    <!-- Settings -->
     <string name="settings_title">Ajustes</string>
+    <string name="settings_tab">Aba da borda</string>
     <string name="setting_tab_visible">Mostrar a aba da borda</string>
-    <string name="setting_edge_right">Aba na borda direita</string>
+    <string name="setting_edge">Borda da tela</string>
+    <string name="edge_left">Esquerda</string>
+    <string name="edge_right">Direita</string>
     <string name="setting_auto_dim">Escurecer a aba quando parada</string>
+    <string name="setting_auto_dim_hint">A aba fica mais fraca depois de 3 segundos e volta ao normal quando você toca nela.</string>
+    <string name="settings_lens">Lupa</string>
     <string name="setting_lens_size">Tamanho da lupa: %1$d dp</string>
     <string name="setting_zoom">Zoom: %1$d×</string>
-    <string name="setting_sample_size">Tamanho da amostra: %1$d×%1$d pixels</string>
+    <string name="setting_sample">Tamanho da amostra</string>
+    <string name="sample_size_option">%1$d×%1$d</string>
+    <string name="setting_sample_hint">Uma amostra maior tira a média de alguns pixels, o que deixa o nome mais estável em fotos e bordas suaves.</string>
+    <string name="settings_label">Etiqueta</string>
     <string name="setting_show_hex">Mostrar valores hex e RGB</string>
     <string name="setting_haptics">Vibrar quando o nome mudar</string>
+    <string name="settings_language">Idioma</string>
+    <string name="language_system">Padrão do sistema</string>
     <string name="setting_developer">Desenvolvedor</string>
     <string name="setting_show_debug">Mostrar detalhes da captura na etiqueta</string>
     <string name="setting_secure_test">Esconder esta tela das capturas (para testar apps protegidos)</string>
 
-    <string name="a11y_not_enabled">Ative primeiro o serviço de acessibilidade do DaltonPick.</string>
-    <string name="overlay_not_granted">Permita primeiro sobrepor a outros apps.</string>
-    <string name="accessibility_active">O serviço de acessibilidade está ativado e é usado primeiro. Desative-o para testar a captura por gravação de tela.</string>
+    <!-- Test chart -->
+    <string name="test_chart_title">Tabela de teste</string>
+    <string name="test_chart_subtitle">Pratique com cores conhecidas</string>
+    <string name="test_chart_intro">O nome embaixo de cada cor é o que a lupa deve dizer. Passe a lupa sobre elas para praticar.</string>
+    <string name="chart_basics">Cores básicas</string>
+    <string name="chart_confusions">Costumam ser confundidas</string>
+    <string name="chart_confusions_hint">Pares que pessoas com daltonismo costumam confundir.</string>
+    <string name="chart_gradient">Do vermelho ao verde</string>
+    <string name="chart_gradient_hint">Arraste a lupa devagar. O nome deve mudar em poucos passos claros.</string>
+
+    <!-- About -->
+    <string name="about_title">Sobre</string>
+    <string name="about_version">Versão %1$s</string>
+    <string name="about_free">Grátis, sem anúncios, sem rastreamento e sem conta. O DaltonPick nunca se conecta à internet.</string>
+    <string name="about_support">Apoie o DaltonPick</string>
+    <string name="about_support_text">Se o DaltonPick ajuda você, você pode me pagar um café.</string>
+    <string name="btn_kofi">Apoiar no Ko-fi ☕</string>
+    <string name="about_support_nothing_unlocked">Abre o Ko-fi no seu navegador. Apoiar não desbloqueia nada: todos os recursos são grátis para todos.</string>
+    <string name="about_more">Mais</string>
+    <string name="about_privacy">Política de privacidade</string>
+    <string name="about_privacy_summary">Nenhum dado é coletado ou compartilhado.</string>
+    <string name="about_source">Código-fonte</string>
+    <string name="about_color_correction">Correção de cor</string>
+    <string name="about_color_correction_summary">O Android também pode mudar as cores da tela inteira. Procure nas configurações de acessibilidade.</string>
+    <string name="licenses_title">Licenças de código aberto</string>
+    <string name="licenses_libraries">Bibliotecas</string>
+    <string name="licenses_apache">Estas bibliotecas são usadas sob a Licença Apache 2.0:</string>
+    <string name="licenses_apache_link">Licença Apache 2.0</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Pular</string>
+    <string name="onboarding_next">Próximo</string>
+    <string name="onboarding_start">Começar</string>
+    <string name="onboarding_progress">%1$d de %2$d</string>
+    <string name="onb_welcome_title">Saiba o nome de qualquer cor da tela</string>
+    <string name="onb_welcome_body">O DaltonPick fica esperando como uma pequena aba na borda da tela. Puxe a aba e aparece uma lupa redonda. Coloque a mira sobre qualquer cor e a lupa diz o nome dela, como “Verde-oliva” ou “Rosa-seco”.</string>
+    <string name="onb_welcome_privacy">As imagens da tela ficam no seu celular. Elas nunca são salvas nem enviadas.</string>
+    <string name="onb_lens_title">Ative a lupa</string>
+    <string name="onb_lens_body">Para ver as cores em outros apps, o DaltonPick usa um serviço de acessibilidade.</string>
+    <string name="onb_lens_warning">O Android vai avisar que o serviço pode ver sua tela. O DaltonPick só olha quando você puxa a lupa e nunca salva nem envia o que vê.</string>
+    <string name="onb_lens_steps">Nas configurações de acessibilidade, abra o DaltonPick e ative.</string>
+    <string name="onb_notifications_title">Controles rápidos</string>
+    <string name="onb_notifications_body">Permita as notificações para ter uma notificação silenciosa com botões de Esconder e Ajustes. Você também pode adicionar um bloco nas Configurações rápidas.</string>
+    <string name="onb_notifications_done">As notificações estão permitidas.</string>
+    <string name="onb_practice_title">Experimente</string>
+    <string name="onb_practice_body">Puxe a aba da borda da tela em direção ao centro e depois mova a lupa sobre estas cores. Toque na aba para guardar a lupa.</string>
+    <string name="onb_practice_lens_off">A lupa está desativada, então ainda não dá para experimentar. Você pode ativá-la depois pela tela inicial.</string>
+    <string name="onb_done_title">Tudo pronto</string>
+    <string name="onb_done_body">Você pode mudar o tamanho da lupa, o zoom e a borda em Ajustes.</string>
+    <string name="onb_kofi_line">O DaltonPick é grátis e sem anúncios. Se ele ajuda você, você pode %1$s.</string>
+    <string name="onb_kofi_link">me pagar um café</string>
+
+    <!-- Overlay -->
     <string name="protected_content">Conteúdo oculto</string>
     <string name="protected_content_detail">O app bloqueia capturas</string>
     <string name="capture_failed">Não foi possível ler a tela. Tente de novo.</string>

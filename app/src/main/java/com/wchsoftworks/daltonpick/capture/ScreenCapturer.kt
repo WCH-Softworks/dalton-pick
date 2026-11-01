@@ -18,6 +18,20 @@ interface ScreenCapturer {
     fun release() {}
 }
 
+/** Why a capture failed, so the overlay can retry, explain, or give up. */
+class CaptureException(val reason: Reason, message: String) : Exception(message) {
+    enum class Reason {
+        /** The system rate-limits screenshots; trying again shortly works. */
+        TOO_SOON,
+
+        /** Screen access is gone: the accessibility service lost its rights, or the projection stopped. */
+        NO_ACCESS,
+
+        /** Anything else: no frame yet, a bad buffer, an internal error. */
+        OTHER,
+    }
+}
+
 /** A frozen software copy of the screen. Pixels read back in sRGB. */
 class Snapshot(val bitmap: Bitmap, val latencyMs: Long, val source: String) {
     val colorSpaceName: String = bitmap.colorSpace?.name ?: "unknown"

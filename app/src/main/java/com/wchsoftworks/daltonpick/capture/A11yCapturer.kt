@@ -24,24 +24,28 @@ class A11yCapturer(private val service: AccessibilityService) : ScreenCapturer {
                         buffer.close()
                     }
                     if (software == null) {
-                        onResult(Result.failure(IllegalStateException("could not read screenshot")))
+                        onResult(Result.failure(CaptureException(CaptureException.Reason.OTHER, "could not read screenshot")))
                     } else {
                         onResult(Result.success(Snapshot(software, SystemClock.elapsedRealtime() - start, name)))
                     }
                 }
 
                 override fun onFailure(errorCode: Int) {
-                    onResult(Result.failure(IllegalStateException(describeError(errorCode))))
+                    onResult(Result.failure(toException(errorCode)))
                 }
             },
         )
     }
 
-    private fun describeError(code: Int) = when (code) {
-        AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERNAL_ERROR -> "internal error"
-        AccessibilityService.ERROR_TAKE_SCREENSHOT_NO_ACCESSIBILITY_ACCESS -> "no screenshot access"
-        AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT -> "too soon after the last capture"
-        AccessibilityService.ERROR_TAKE_SCREENSHOT_INVALID_DISPLAY -> "invalid display"
-        else -> "error $code"
+    private fun toException(code: Int) = when (code) {
+        AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT ->
+            CaptureException(CaptureException.Reason.TOO_SOON, "too soon after the last capture")
+        AccessibilityService.ERROR_TAKE_SCREENSHOT_NO_ACCESSIBILITY_ACCESS ->
+            CaptureException(CaptureException.Reason.NO_ACCESS, "no screenshot access")
+        AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERNAL_ERROR ->
+            CaptureException(CaptureException.Reason.OTHER, "internal error")
+        AccessibilityService.ERROR_TAKE_SCREENSHOT_INVALID_DISPLAY ->
+            CaptureException(CaptureException.Reason.OTHER, "invalid display")
+        else -> CaptureException(CaptureException.Reason.OTHER, "error $code")
     }
 }

@@ -4,7 +4,9 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.service.quicksettings.TileService
+import android.widget.Toast
 import com.wchsoftworks.daltonpick.OverlayNotification
+import com.wchsoftworks.daltonpick.R
 import com.wchsoftworks.daltonpick.ToggleTileService
 import com.wchsoftworks.daltonpick.capture.ScreenCapturer
 import com.wchsoftworks.daltonpick.settings.SettingsRepository
@@ -24,15 +26,30 @@ class OverlayRuntime(
     windowType: Int,
     private val capturer: ScreenCapturer,
     private val withStopAction: Boolean,
+    /** This runtime ended on its own (replaced by another host, or its windows were refused): stop the host. */
+    private val onEnded: () -> Unit = {},
 ) {
     private val repo = SettingsRepository.get(context)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private val controller = OverlayController(context, windowType, capturer) { transform ->
-        scope.launch { repo.update(transform) }
-    }
+    private var stopped = false
+    private val controller = OverlayController(
+        context,
+        windowType,
+        capturer,
+        persist = { transform -> scope.launch { repo.update(transform) } },
+        onWindowsLost = {
+            Toast.makeText(context, R.string.overlay_lost, Toast.LENGTH_LONG).show()
+            stop()
+            onEnded()
+        },
+    )
 
     fun start() {
-        active?.stop()
+        // Only one host at a time: turning on the accessibility service retires the fallback.
+        active?.let {
+            it.stop()
+            it.onEnded()
+        }
         active = this
         scope.launch {
             repo.flow.collect { settings ->
@@ -47,6 +64,8 @@ class OverlayRuntime(
     fun onScreenChanged() = controller.onScreenChanged()
 
     fun stop() {
+        if (stopped) return
+        stopped = true
         if (active === this) active = null
         scope.cancel()
         controller.destroy()

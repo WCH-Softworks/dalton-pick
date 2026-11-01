@@ -26,12 +26,18 @@
     <string name="setting_haptics">Vibrate when the name changes</string>
     <string name="setting_developer">Developer</string>
     <string name="setting_show_debug">Show capture details in the label</string>
+    <string name="setting_secure_test">Hide this screen from screenshots (to test protected apps)</string>
 
     <string name="a11y_not_enabled">Turn on the DaltonPick accessibility service first.</string>
     <string name="overlay_not_granted">Allow display over other apps first.</string>
     <string name="accessibility_active">The accessibility service is on and is used first. Turn it off to try screen-recording capture.</string>
-    <string name="protected_content">This app hides its content</string>
-    <string name="capture_failed">Capture failed: %1$s</string>
+    <string name="protected_content">Content hidden</string>
+    <string name="protected_content_detail">The app blocks capture</string>
+    <string name="capture_failed">Couldn’t read the screen. Try again.</string>
+    <string name="capture_no_access">DaltonPick lost access to the screen. Turn its accessibility service back on.</string>
+    <string name="overlay_lost">The lens needs “Display over other apps”. Allow it again.</string>
+    <string name="projection_denied">Screen recording wasn’t allowed, so the lens can’t start.</string>
+    <string name="projection_stopped">Screen-recording capture stopped.</string>
 
     <string name="tab_description">DaltonPick color lens. Double-tap to open.</string>
     <string name="tab_action_switch_edge">Move to the other side of the screen</string>

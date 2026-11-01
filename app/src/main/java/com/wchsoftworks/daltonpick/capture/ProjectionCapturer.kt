@@ -91,6 +91,10 @@ class ProjectionCapturer(private val context: Context, private val projection: M
 
     override fun capture(onResult: (Result<Snapshot>) -> Unit) {
         val start = SystemClock.elapsedRealtime()
+        if (released) {
+            main.post { onResult(Result.failure(CaptureException(CaptureException.Reason.NO_ACCESS, "screen recording stopped"))) }
+            return
+        }
         handler.post {
             val image = latest
             if (image != null) {
@@ -101,7 +105,7 @@ class ProjectionCapturer(private val context: Context, private val projection: M
                 handler.postDelayed({
                     if (pending === request) {
                         pending = null
-                        main.post { onResult(Result.failure(IllegalStateException("no frame from the screen yet"))) }
+                        main.post { onResult(Result.failure(CaptureException(CaptureException.Reason.OTHER, "no frame from the screen yet"))) }
                     }
                 }, FIRST_FRAME_TIMEOUT_MS)
             }
@@ -123,7 +127,12 @@ class ProjectionCapturer(private val context: Context, private val projection: M
         return Bitmap.createBitmap(padded, 0, 0, width, height).also { padded.recycle() }
     }
 
+    @Volatile
+    private var released = false
+
     override fun release() {
+        if (released) return
+        released = true
         handler.post {
             latest?.close()
             latest = null

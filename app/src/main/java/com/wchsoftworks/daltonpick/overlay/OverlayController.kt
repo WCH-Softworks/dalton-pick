@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.Choreographer
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
+import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityManager
@@ -19,6 +20,7 @@ import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import com.wchsoftworks.daltonpick.R
+import com.wchsoftworks.daltonpick.capture.CaptureException
 import com.wchsoftworks.daltonpick.capture.ScreenCapturer
 import com.wchsoftworks.daltonpick.capture.Snapshot
 import com.wchsoftworks.daltonpick.colorengine.ColorLabel
@@ -41,6 +43,8 @@ class OverlayController(
     private val windowType: Int,
     private val capturer: ScreenCapturer,
     private val persist: ((Settings) -> Settings) -> Unit,
+    /** The system refused an overlay window (e.g. "display over other apps" was revoked). */
+    private val onWindowsLost: () -> Unit,
 ) {
     private val wm = context.getSystemService(WindowManager::class.java)
     private val accessibility = context.getSystemService(AccessibilityManager::class.java)
@@ -106,6 +110,26 @@ class OverlayController(
         layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
     }
 
+    /** Adds an overlay window; false (and [onWindowsLost]) when the system refuses it. */
+    private fun addWindow(view: View, params: WindowManager.LayoutParams): Boolean = try {
+        wm.addView(view, params)
+        true
+    } catch (e: RuntimeException) {
+        // BadTokenException or SecurityException: the overlay permission is gone.
+        Log.w(TAG, "overlay window refused", e)
+        onWindowsLost()
+        false
+    }
+
+    /** Moves or resizes a window, ignoring one the system has already taken away. */
+    private fun relayout(view: View, params: WindowManager.LayoutParams) {
+        try {
+            wm.updateViewLayout(view, params)
+        } catch (e: IllegalArgumentException) {
+            Log.w(TAG, "window no longer attached", e)
+        }
+    }
+
     // --- Settings and lifecycle
 
     fun apply(new: Settings) {
@@ -138,16 +162,21 @@ class OverlayController(
         tab.onRightEdge = onRight
         tabParams.y = tabYFromFraction(settings.tabPosition)
         tabParams.x = dockedX(onRight)
-        wm.addView(tab, tabParams)
+        if (!addWindow(tab, tabParams)) return
         showing = true
         wakeTab()
     }
 
     private fun hide() {
+        if (capturing) {
+            captureId++ // drop the pending result
+            capturing = false
+            main.removeCallbacks(captureTimeout)
+        }
         dismissLens(animated = false)
         main.removeCallbacks(dimTab)
         snapAnimator?.cancel()
-        if (showing) wm.removeView(tab)
+        if (showing && tab.isAttachedToWindow) wm.removeView(tab)
         showing = false
     }
 
@@ -161,7 +190,7 @@ class OverlayController(
         snapAnimator?.cancel()
         tabParams.y = tabYFromFraction(settings.tabPosition)
         tabParams.x = dockedX(onRight)
-        wm.updateViewLayout(tab, tabParams)
+        relayout(tab, tabParams)
     }
 
     // --- Edge tab
@@ -195,7 +224,7 @@ class OverlayController(
 
     fun moveTabTo(y: Int) {
         tabParams.y = y.coerceIn(tabYRange())
-        wm.updateViewLayout(tab, tabParams)
+        relayout(tab, tabParams)
     }
 
     fun saveTabPosition() {
@@ -225,7 +254,7 @@ class OverlayController(
     fun carryTabTo(rawX: Float, rawY: Float) {
         tabParams.x = (rawX - tabWidthPx / 2f).toInt().coerceIn(0, screen.width() - tabWidthPx)
         tabParams.y = (rawY - tabHeightPx / 2f).toInt().coerceIn(tabYRange())
-        wm.updateViewLayout(tab, tabParams)
+        relayout(tab, tabParams)
     }
 
     /** Snaps to whichever edge is nearer and remembers it. */
@@ -244,7 +273,7 @@ class OverlayController(
         val y = clearOfCutout(tabParams.y, tabParams.x)
         if (y == tabParams.y) return
         tabParams.y = y
-        wm.updateViewLayout(tab, tabParams)
+        relayout(tab, tabParams)
     }
 
     private fun dockTab(animated: Boolean) {
@@ -254,7 +283,7 @@ class OverlayController(
         snapAnimator?.cancel()
         if (!animated || !animationsEnabled()) {
             tabParams.x = target
-            wm.updateViewLayout(tab, tabParams)
+            relayout(tab, tabParams)
             return
         }
         snapAnimator = ValueAnimator.ofInt(tabParams.x, target).apply {
@@ -262,7 +291,7 @@ class OverlayController(
             addUpdateListener {
                 if (!showing) return@addUpdateListener
                 tabParams.x = it.animatedValue as Int
-                wm.updateViewLayout(tab, tabParams)
+                relayout(tab, tabParams)
             }
             start()
         }
@@ -365,10 +394,10 @@ class OverlayController(
         if (lens != null) return placeLens()
         val view = LensView(context, this, settings)
         val params = overlayParams(view.windowWidthPx, view.windowHeightPx)
+        positionLens(view, params)
+        if (!addWindow(view, params)) return
         lens = view
         lensParams = params
-        positionLens(view, params)
-        wm.addView(view, params)
         updateSample(view)
         animateIn(view)
     }
@@ -377,7 +406,7 @@ class OverlayController(
     private fun rebuildLens() {
         val old = lens ?: return
         old.animate().cancel()
-        wm.removeView(old)
+        if (old.isAttachedToWindow) wm.removeView(old)
         lens = null
         lensParams = null
         showLens()
@@ -406,7 +435,7 @@ class OverlayController(
         val view = lens ?: return
         val params = lensParams ?: return
         positionLens(view, params)
-        wm.updateViewLayout(view, params)
+        relayout(view, params)
         updateSample(view)
         announceSoon()
     }
@@ -460,7 +489,7 @@ class OverlayController(
         val by = (centerY * snap.bitmap.height / bounds.height()).toInt()
         val rgb = snap.sampleSrgb(bx, by, view.sampleRadius)
         val label = if (snap.looksProtected) {
-            ColorLabel(context.getString(R.string.protected_content), "")
+            ColorLabel(context.getString(R.string.protected_content), context.getString(R.string.protected_content_detail))
         } else {
             ColorLocalization.label(namer.match(rgb), lang)
         }
@@ -487,34 +516,70 @@ class OverlayController(
 
     // --- Snapshot-on-pull
 
+    /** Bumped per capture; a result for an older id arrived after the timeout and is dropped. */
+    private var captureId = 0
+
     private fun takeSnapshot(then: () -> Unit) {
         if (capturing) return
         capturing = true
         setOverlayAlpha(0f)
-
-        val capture = {
-            capturer.capture { result ->
-                capturing = false
-                setOverlayAlpha(1f)
-                result.onSuccess { snap ->
-                    val old = snapshot
-                    snapshot = snap
-                    old?.recycle()
-                    namer.reset()
-                    Log.i(TAG, "capture ok: ${snap.describe()}")
-                    then()
-                }.onFailure { e ->
-                    Log.w(TAG, "capture failed", e)
-                    Toast.makeText(context, context.getString(R.string.capture_failed, e.message), Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+        val id = ++captureId
+        main.postDelayed(captureTimeout, CAPTURE_TIMEOUT_MS)
 
         // Wait two frames (plus a short delay) so the hidden overlay has left the screen.
         val choreographer = Choreographer.getInstance()
         choreographer.postFrameCallback {
-            choreographer.postFrameCallback { main.postDelayed(capture, EXTRA_CAPTURE_DELAY_MS) }
+            choreographer.postFrameCallback { main.postDelayed({ requestCapture(id, then, retriesLeft = 1) }, EXTRA_CAPTURE_DELAY_MS) }
         }
+    }
+
+    private fun requestCapture(id: Int, then: () -> Unit, retriesLeft: Int) {
+        if (id != captureId || !capturing) return
+        capturer.capture { result ->
+            if (id != captureId || !capturing) {
+                result.getOrNull()?.recycle()
+                return@capture
+            }
+            val error = result.exceptionOrNull()
+            if (error is CaptureException && error.reason == CaptureException.Reason.TOO_SOON && retriesLeft > 0) {
+                // Android allows about three screenshots a second; a quick refresh just waits its turn.
+                main.postDelayed({ requestCapture(id, then, retriesLeft - 1) }, RETRY_DELAY_MS)
+                return@capture
+            }
+            endCapture()
+            result.onSuccess { snap ->
+                val old = snapshot
+                snapshot = snap
+                old?.recycle()
+                namer.reset()
+                Log.i(TAG, "capture ok: ${snap.describe()}")
+                then()
+            }.onFailure(::showCaptureError)
+        }
+    }
+
+    /** A capture that never answers must not leave the overlay invisible. */
+    private val captureTimeout = Runnable {
+        if (!capturing) return@Runnable
+        captureId++
+        endCapture()
+        showCaptureError(CaptureException(CaptureException.Reason.OTHER, "timed out"))
+    }
+
+    private fun endCapture() {
+        capturing = false
+        main.removeCallbacks(captureTimeout)
+        setOverlayAlpha(1f)
+    }
+
+    private fun showCaptureError(e: Throwable) {
+        Log.w(TAG, "capture failed", e)
+        val message = if (e is CaptureException && e.reason == CaptureException.Reason.NO_ACCESS) {
+            R.string.capture_no_access
+        } else {
+            R.string.capture_failed
+        }
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     private fun setOverlayAlpha(alpha: Float) {
@@ -533,5 +598,7 @@ class OverlayController(
         private const val DISMISS_MS = 140L
         private const val ANNOUNCE_DEBOUNCE_MS = 700L
         private const val EXTRA_CAPTURE_DELAY_MS = 32L
+        private const val RETRY_DELAY_MS = 350L
+        private const val CAPTURE_TIMEOUT_MS = 3000L
     }
 }

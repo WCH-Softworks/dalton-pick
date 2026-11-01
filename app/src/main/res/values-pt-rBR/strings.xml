@@ -25,12 +25,18 @@
     <string name="setting_haptics">Vibrar quando o nome mudar</string>
     <string name="setting_developer">Desenvolvedor</string>
     <string name="setting_show_debug">Mostrar detalhes da captura na etiqueta</string>
+    <string name="setting_secure_test">Esconder esta tela das capturas (para testar apps protegidos)</string>
 
     <string name="a11y_not_enabled">Ative primeiro o serviço de acessibilidade do DaltonPick.</string>
     <string name="overlay_not_granted">Permita primeiro sobrepor a outros apps.</string>
     <string name="accessibility_active">O serviço de acessibilidade está ativado e é usado primeiro. Desative-o para testar a captura por gravação de tela.</string>
-    <string name="protected_content">Este app esconde o conteúdo</string>
-    <string name="capture_failed">Falha na captura: %1$s</string>
+    <string name="protected_content">Conteúdo oculto</string>
+    <string name="protected_content_detail">O app bloqueia capturas</string>
+    <string name="capture_failed">Não foi possível ler a tela. Tente de novo.</string>
+    <string name="capture_no_access">O DaltonPick perdeu acesso à tela. Reative o serviço de acessibilidade.</string>
+    <string name="overlay_lost">A lupa precisa de “Sobrepor a outros apps”. Permita de novo.</string>
+    <string name="projection_denied">A gravação de tela não foi permitida, então a lupa não pode começar.</string>
+    <string name="projection_stopped">A captura por gravação de tela parou.</string>
 
     <string name="tab_description">Lupa de cores do DaltonPick. Toque duas vezes para abrir.</string>
     <string name="tab_action_switch_edge">Mover para o outro lado da tela</string>

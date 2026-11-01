@@ -4,12 +4,15 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.drawable.GradientDrawable
+import android.media.projection.MediaProjectionConfig
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Gravity
 import android.view.View
+import android.view.WindowManager
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.Button
@@ -77,8 +80,14 @@ class MainActivity : Activity() {
             if (DaltonAccessibilityService.instance != null) return@button toast(R.string.accessibility_active)
             if (!Settings.canDrawOverlays(this)) return@button toast(R.string.overlay_not_granted)
             val mpm = getSystemService(MediaProjectionManager::class.java)
+            // Android 14+ can offer "Share one app", which would leave the lens blind to every other app.
+            val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                mpm.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
+            } else {
+                mpm.createScreenCaptureIntent()
+            }
             @Suppress("DEPRECATION")
-            startActivityForResult(mpm.createScreenCaptureIntent(), REQUEST_PROJECTION)
+            startActivityForResult(intent, REQUEST_PROJECTION)
         })
         column.addView(button(R.string.btn_stop) { ProjectionOverlayService.stop(this) })
 
@@ -118,8 +127,11 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_PROJECTION && resultCode == RESULT_OK && data != null) {
+        if (requestCode != REQUEST_PROJECTION) return
+        if (resultCode == RESULT_OK && data != null) {
             ProjectionOverlayService.start(this, resultCode, data)
+        } else {
+            toast(R.string.projection_denied)
         }
     }
 
@@ -167,6 +179,14 @@ class MainActivity : Activity() {
             setPadding(0, pad / 2, 0, 0)
         })
         column.addView(checkBox(R.string.setting_show_debug, { it.showDebug }) { s, v -> s.copy(showDebug = v) })
+        // Makes this screen behave like a banking or streaming app, to test the "hides its content" message.
+        column.addView(CheckBox(this).apply {
+            text = getString(R.string.setting_secure_test)
+            setOnCheckedChangeListener { _, checked ->
+                if (checked) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+        })
     }
 
     private fun checkBox(

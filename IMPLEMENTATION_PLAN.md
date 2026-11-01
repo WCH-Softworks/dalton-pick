@@ -60,15 +60,24 @@ Checked on the Android 16 emulator only (Pixel 9 Pro AVD, gesture navigation); n
 - [x] Quick Settings tile (show/hide tab; opens the app when no host is running).
 - [x] Settings in DataStore (`SettingsRepository`) replace `SpikePrefs`: lens size, zoom, edge, auto-dim, sample size, hex, haptics, developer debug line, tab visibility and position. The settings UI on the main screen is still the plain-views test screen; the real one comes in M4.
 
-## M3 — Capture integration (≈ 4 days)
+## M3 — Capture integration (≈ 4 days) — *done on the emulator*
 
-- [ ] `ScreenCapturer` interface + the chosen backend (and the fallback, if planned).
-- [ ] Snapshot-on-pull: hide overlay → capture → copy to software `ARGB_8888` → hand to `LensView`.
-- [ ] Refresh action. Release the bitmap when the lens is dismissed.
-- [ ] Map screen coordinates to bitmap coordinates (insets, rotation, density).
-- [ ] Detect `FLAG_SECURE` / black frames and show a friendly message.
-- [ ] Error paths: permission revoked, service killed, consent denied. Recover gracefully.
+Most of this landed with M0 and M2; the rest is error handling. Checked on the Android 16 emulator only.
 
+- [x] `ScreenCapturer` interface + both backends: accessibility screenshot (main) and MediaProjection (fallback). *(M0/M2)*
+- [x] Snapshot-on-pull: hide overlay → wait two frames → capture → copy to software `ARGB_8888` → hand to `LensView`. *(M0)*
+- [x] Refresh by tapping the label. The bitmap is recycled when the lens is dismissed or replaced. *(M0/M2)*
+- [x] Screen → bitmap coordinates: scaled by the snapshot size, so it holds across rotation; checked in portrait, landscape and split-screen. *(M2)*
+- [x] `FLAG_SECURE`: a fully black capture shows "Content hidden · The app blocks capture". Tested with a "Hide this screen from screenshots" switch on the test screen. **Limit:** in split-screen with one protected app, only half the screen is black, so the lens there just says "Black".
+- [x] Error paths:
+  - A capture that never answers times out after 3 s, so the overlay can't stay invisible.
+  - A refresh inside Android's screenshot rate limit (about 3 per second) waits and retries once instead of failing.
+  - Failures show a short, translated message instead of the raw error.
+  - Accessibility service killed: Android restarts it and the tab comes back (tested by killing the process).
+  - Screen-recording consent denied: a message explains the lens can't start. On Android 14+ the dialog only offers "Share entire screen" ("Share one app" is greyed out).
+  - Recording stopped from the system chip: the fallback stops and says so. *(Written, not exercised: the emulator has no easy way to tap the chip from adb.)*
+  - "Display over other apps" revoked: the fallback notices, stops, and asks for it again. A refused overlay window also stops the host instead of crashing.
+  - Turning on the accessibility service while the fallback runs: the fallback stops and the accessibility host takes over, with one tab.
 ## M4 — Main app (≈ 4 days)
 
 - [ ] Onboarding flow: explanation → overlay permission → accessibility (or projection) permission → notifications → practice screen → one-line Ko-fi mention.

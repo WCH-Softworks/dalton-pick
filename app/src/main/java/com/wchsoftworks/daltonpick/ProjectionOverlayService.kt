@@ -1,5 +1,6 @@
 package com.wchsoftworks.daltonpick
 
+import android.app.AppOpsManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -11,7 +12,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.provider.Settings
 import android.view.WindowManager
+import android.widget.Toast
 import com.wchsoftworks.daltonpick.capture.ProjectionCapturer
 import com.wchsoftworks.daltonpick.overlay.OverlayRuntime
 
@@ -55,16 +58,42 @@ class ProjectionOverlayService : Service() {
         }
         // Android 14 requires a callback before the virtual display is created.
         projection.registerCallback(object : MediaProjection.Callback() {
-            override fun onStop() = stopSelf()
-        }, Handler(Looper.getMainLooper()))
+            override fun onStop() {
+                // The user tapped "Stop sharing", or another app took the screen recording.
+                if (runtime != null) Toast.makeText(this@ProjectionOverlayService, R.string.projection_stopped, Toast.LENGTH_LONG).show()
+                stopSelf()
+            }
+        }, main)
 
+        watchOverlayPermission()
         runtime = OverlayRuntime(
             this,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             ProjectionCapturer(this, projection),
             withStopAction = true,
+            onEnded = ::stopSelf,
         ).also { it.start() }
         return START_NOT_STICKY
+    }
+
+    private val main = Handler(Looper.getMainLooper())
+    private var opsListener: AppOpsManager.OnOpChangedListener? = null
+
+    /** The fallback's windows need "display over other apps"; if the user revokes it, stop cleanly. */
+    private fun watchOverlayPermission() {
+        val ops = getSystemService(AppOpsManager::class.java)
+        val listener = AppOpsManager.OnOpChangedListener { _, pkg ->
+            if (pkg != packageName) return@OnOpChangedListener
+            // The new mode is not visible to canDrawOverlays() until a moment later.
+            main.postDelayed({
+                if (runtime != null && !Settings.canDrawOverlays(this)) {
+                    Toast.makeText(this, R.string.overlay_lost, Toast.LENGTH_LONG).show()
+                    stopSelf()
+                }
+            }, 200)
+        }
+        ops.startWatchingMode(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, packageName, listener)
+        opsListener = listener
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -73,8 +102,11 @@ class ProjectionOverlayService : Service() {
     }
 
     override fun onDestroy() {
-        runtime?.stop()
+        opsListener?.let { getSystemService(AppOpsManager::class.java).stopWatchingMode(it) }
+        opsListener = null
+        val ending = runtime
         runtime = null
+        ending?.stop()
         super.onDestroy()
     }
 

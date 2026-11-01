@@ -38,8 +38,9 @@ class DaltonAccessibilityService : AccessibilityService() {
     }
 
     /**
-     * Only event types are used, never the content of other apps (canRetrieveWindowContent is off):
-     * a scroll or a new screen underneath means the lens's snapshot is out of date.
+     * Only the event type and, for scrolls, the distance scrolled are used, never the content of other
+     * apps (canRetrieveWindowContent is off): the lens follows the scroll, and a scroll or a new screen
+     * underneath means its snapshot is out of date.
      */
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         event ?: return
@@ -48,9 +49,9 @@ class DaltonAccessibilityService : AccessibilityService() {
             return
         }
         when (event.eventType) {
-            AccessibilityEvent.TYPE_VIEW_SCROLLED,
-            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
-            -> runtime?.onContentChanged()
+            AccessibilityEvent.TYPE_VIEW_SCROLLED ->
+                runtime?.onScrolled(event.scrollDeltaX, event.scrollDeltaY, event.scrollY, event.className)
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> runtime?.onWindowChanged()
         }
     }
 

@@ -16,14 +16,14 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.accessibility.AccessibilityNodeInfo
 import com.wchsoftworks.daltonpick.R
-import com.wchsoftworks.daltonpick.capture.Snapshot
 import com.wchsoftworks.daltonpick.colorengine.ColorLabel
 import com.wchsoftworks.daltonpick.colorengine.Srgb
 import com.wchsoftworks.daltonpick.settings.Settings
 
 /**
  * The round lens with a gapped crosshair, plus the name label (spec §4.2).
- * Draws a magnified region of the frozen [Snapshot]; the controller decides what to show.
+ * Draws a magnified region of the frozen [ScreenContent] (the snapshot, shifted while the app
+ * underneath scrolls); the controller decides what to show.
  */
 @SuppressLint("ViewConstructor")
 class LensView(
@@ -61,7 +61,7 @@ class LensView(
     /** True while fine-adjust mode is on: the lens moves at a fraction of finger speed. */
     private var precision = false
 
-    private var snapshot: Snapshot? = null
+    private var content: ScreenContent? = null
     private var sampleX = 0
     private var sampleY = 0
     private var sampledRgb = 0
@@ -104,8 +104,8 @@ class LensView(
         typeface = face
     }
 
-    fun bind(snapshot: Snapshot, sampleX: Int, sampleY: Int, rgb: Int, label: ColorLabel, debugLine: String?) {
-        this.snapshot = snapshot
+    fun bind(content: ScreenContent, sampleX: Int, sampleY: Int, rgb: Int, label: ColorLabel, debugLine: String?) {
+        this.content = content
         this.sampleX = sampleX
         this.sampleY = sampleY
         this.sampledRgb = rgb
@@ -134,22 +134,28 @@ class LensView(
         canvas.clipPath(clip)
         canvas.drawCircle(cx, cy, r, emptyPaint)
 
-        val bmp = snapshot?.bitmap
-        if (bmp != null && !bmp.isRecycled) {
-            // Source square centred on the sample pixel, clipped to the bitmap, mapped to the lens.
+        val content = content
+        if (content != null) {
+            // Source square centred on the sample pixel, clipped to the screen, mapped to the lens.
+            // Rows can come from different places (fixed bars, the scrolled band, content not seen
+            // yet), so draw it as horizontal strips; unseen strips keep the empty fill.
             val half = r / zoom
             val left = sampleX + 0.5f - half
             val top = sampleY + 0.5f - half
-            src.set(
-                maxOf(0, left.toInt()), maxOf(0, top.toInt()),
-                minOf(bmp.width, (sampleX + 0.5f + half).toInt() + 1), minOf(bmp.height, (sampleY + 0.5f + half).toInt() + 1),
-            )
-            if (!src.isEmpty) {
-                dst.set(
-                    cx - r + (src.left - left) * zoom, cy - r + (src.top - top) * zoom,
-                    cx - r + (src.right - left) * zoom, cy - r + (src.bottom - top) * zoom,
-                )
-                canvas.drawBitmap(bmp, src, dst, bitmapPaint)
+            val x0 = maxOf(0, left.toInt())
+            val x1 = minOf(content.width, (sampleX + 0.5f + half).toInt() + 1)
+            val y0 = maxOf(0, top.toInt())
+            val y1 = minOf(content.height, (sampleY + 0.5f + half).toInt() + 1)
+            if (x0 < x1) {
+                content.forEachRun(y0, y1) { bmp, srcTop, runTop, count ->
+                    if (bmp == null) return@forEachRun
+                    src.set(x0, srcTop, x1, srcTop + count)
+                    dst.set(
+                        cx - r + (x0 - left) * zoom, cy - r + (runTop - top) * zoom,
+                        cx - r + (x1 - left) * zoom, cy - r + (runTop + count - top) * zoom,
+                    )
+                    canvas.drawBitmap(bmp, src, dst, bitmapPaint)
+                }
             }
         }
         canvas.restore()

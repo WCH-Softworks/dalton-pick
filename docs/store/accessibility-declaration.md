@@ -18,7 +18,7 @@ All of these are true of the M0 build and must stay true for the release build. 
 | Service sets `android:isAccessibilityTool="true"` | `app/src/main/res/xml/accessibility_service.xml` |
 | `android:canTakeScreenshot="true"` (needed for `AccessibilityService.takeScreenshot`, API 30+) | same |
 | `android:canRetrieveWindowContent="false"`: the service cannot read what is on screen as text | same |
-| Event types: `typeWindowStateChanged` and `typeViewScrolled` only, no text or click events. Only the event type is used, as a cue that the content under an open lens moved | same |
+| Event types: `typeWindowStateChanged` and `typeViewScrolled` only, no text or click events. Only the event type and, for scrolls, the distance scrolled (`scrollDeltaX/Y`) are used: the cue that the content under an open lens moved, and how far, so the lens can follow it until its next screenshot. No event text, source node or window content is read | same |
 | No `INTERNET` permission anywhere in the manifest | `app/src/main/AndroidManifest.xml` |
 | One screenshot per pull, per refresh, and after the content under an open lens scrolls or changes screen; kept in memory, released when the lens closes | SPEC §5.2, §8 |
 | No ads, analytics, or third-party SDKs | SPEC §5.1 |

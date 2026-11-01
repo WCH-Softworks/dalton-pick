@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Events: scrolls and screen changes in other apps tell the open lens to refresh its snapshot.
-  Only the event types are used; canRetrieveWindowContent stays off, so no app content is read.
+  Events: scrolls and screen changes in other apps tell the open lens to refresh its snapshot, and a
+  scroll's distance lets the lens follow it until then. Only the event type and scroll distance are
+  used; canRetrieveWindowContent stays off, so no app content is read.
   notificationTimeout is short so a refresh follows soon after scrolling stops.
 -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"

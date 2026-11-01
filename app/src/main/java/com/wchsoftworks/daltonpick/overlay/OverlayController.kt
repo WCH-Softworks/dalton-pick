@@ -2,10 +2,12 @@ package com.wchsoftworks.daltonpick.overlay
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.provider.Settings.Global
 import android.util.Log
 import android.view.Choreographer
@@ -14,6 +16,7 @@ import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
+import android.view.animation.LinearInterpolator
 import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import androidx.dynamicanimation.animation.DynamicAnimation
@@ -30,6 +33,9 @@ import com.wchsoftworks.daltonpick.colorengine.Lang
 import com.wchsoftworks.daltonpick.colorengine.Srgb
 import com.wchsoftworks.daltonpick.settings.Edge
 import com.wchsoftworks.daltonpick.settings.Settings
+import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
+import kotlin.math.roundToInt
 
 /**
  * Owns the overlay windows (edge tab + lens) and the snapshot-on-pull flow (spec §5.2).
@@ -60,7 +66,7 @@ class OverlayController(
     private val tabParams = overlayParams(tabWidthPx, tabHeightPx)
     private var lens: LensView? = null
     private var lensParams: WindowManager.LayoutParams? = null
-    private var snapshot: Snapshot? = null
+    private var content: ScreenContent? = null
 
     private var showing = false
     private var capturing = false
@@ -180,7 +186,10 @@ class OverlayController(
         showing = false
     }
 
-    fun destroy() = hide()
+    fun destroy() {
+        hide()
+        worker.shutdown()
+    }
 
     /** Rotation, fold or window resize: the snapshot no longer matches the screen. */
     fun onScreenChanged() {
@@ -403,8 +412,42 @@ class OverlayController(
         }
     }
 
-    /** The accessibility service saw the app underneath scroll or change screen. */
-    fun onContentChanged() = scheduleRefresh(SETTLE_AFTER_SCROLL_MS)
+    /** The accessibility service saw another app change screen: nothing stitched so far applies. */
+    fun onWindowChanged() {
+        scheduleRefresh(SETTLE_AFTER_SCROLL_MS)
+        startOver()
+    }
+
+    /**
+     * The accessibility service saw another app scroll. Deltas are in screen pixels, or
+     * [UNKNOWN_DELTA] when the app doesn't say (Compose lists). [scrollY] and [source] are only
+     * used to measure, in debug builds, whether Compose's scroll positions could stand in.
+     */
+    fun onScrolled(dx: Int, dy: Int, scrollY: Int, source: CharSequence?) {
+        if (debuggable) Log.v(TAG, "scrolled: dx $dx, dy $dy, scrollY $scrollY, $source")
+        scheduleRefresh(SETTLE_AFTER_SCROLL_MS)
+        val c = content ?: return
+        if (dx != UNKNOWN_DELTA && dx != 0) return startOver() // Sideways: the band picture no longer fits.
+        scrolling = true
+        if (dy == UNKNOWN_DELTA) {
+            unknownScrolls++
+            if (debuggable) {
+                val key = source?.toString() ?: "?"
+                lastScrollY.put(key, scrollY)?.let { composeScrollY += scrollY - it }
+            }
+            return
+        }
+        if (dy == 0) return
+        knownScrolls++
+        if (!c.map.hasBand) {
+            // No two snapshots lined up yet: guess that everything between the system bars scrolls.
+            // A lens over a toolbar may shift wrongly until the first settle snapshot fixes the band.
+            val b = bars
+            val scale = c.height.toFloat() / screen.height()
+            c.map.setBand((b.top * scale).toInt(), c.height - (b.bottom * scale).toInt(), provisional = true)
+        }
+        shiftBy(dy * c.height.toFloat() / screen.height())
+    }
 
     /** A touch landed outside the lens: probably a scroll or tap on the app underneath. */
     fun onOutsideTouch() = scheduleRefresh(SETTLE_AFTER_TOUCH_MS)
@@ -415,12 +458,247 @@ class OverlayController(
         main.postDelayed(autoRefresh, delayMs)
     }
 
+    // --- Following a scroll before the next snapshot (spec §5.2 step 4). Scroll events give the
+    // distance; the lens redraws the band shifted by it, from the snapshot and from content stitched
+    // from earlier snapshots. When the settle snapshot arrives, it is lined up with the one before
+    // ([ScrollRegistration], off the main thread) to find the band and extend the stitched content.
+
+    private val debuggable = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+    private val worker = Executors.newSingleThreadExecutor()
+
+    /** Bumped whenever stitching starts over; registrations from an older chain are dropped. */
+    private var chain = 0
+
+    /** Registrations still running. Until they land, the band's scroll position is unknown: no shift. */
+    private var registering = 0
+
+    /** Snapshots the worker (or a pending registration) still reads, and those to recycle after. */
+    private val pinned = HashMap<Snapshot, Int>()
+    private val doomed = HashSet<Snapshot>()
+
+    /** Scroll events since the last settle: no haptics or announcements until it lands. */
+    private var scrolling = false
+
+    /** Rows scrolled since the latest snapshot ([targetShift]) and how far the lens has caught up ([shownShift]). */
+    private var targetShift = 0f
+    private var shownShift = 0f
+    private var shiftAnimator: ValueAnimator? = null
+    private var lastScrollAt = 0L
+    private var knownScrolls = 0
+    private var unknownScrolls = 0
+
+    /** Debug builds: summed Compose scrollY changes, to compare with what registration finds. */
+    private var composeScrollY = 0
+    private val lastScrollY = HashMap<String, Int>()
+
+    /** Values when the pending capture was taken: later scrolls carry over to the new snapshot. */
+    private var shiftAtCapture = 0f
+    private var knownAtCapture = 0
+    private var unknownAtCapture = 0
+    private var composeAtCapture = 0
+
+    /** Events come about every 115 ms; glide between them so the lens moves smoothly, one event behind. */
+    private fun shiftBy(rows: Float) {
+        targetShift += rows
+        val now = SystemClock.uptimeMillis()
+        val interval = (now - lastScrollAt).coerceIn(MIN_GLIDE_MS, MAX_GLIDE_MS)
+        lastScrollAt = now
+        shiftAnimator?.cancel()
+        if (!animationsEnabled()) {
+            shownShift = targetShift
+            redrawLens()
+            return
+        }
+        shiftAnimator = ValueAnimator.ofFloat(shownShift, targetShift).apply {
+            duration = interval
+            interpolator = LinearInterpolator()
+            addUpdateListener {
+                shownShift = it.animatedValue as Float
+                redrawLens()
+            }
+            start()
+        }
+    }
+
+    private fun redrawLens() {
+        lens?.let(::updateSample)
+    }
+
+    /** Forget the band and the stitched content; the next snapshot becomes the new base. */
+    private fun startOver() {
+        chain++
+        content?.clear()
+        resetShift()
+        redrawLens()
+    }
+
+    private fun resetShift() {
+        shiftAnimator?.cancel()
+        shiftAnimator = null
+        targetShift = 0f
+        shownShift = 0f
+        knownScrolls = 0
+        unknownScrolls = 0
+        composeScrollY = 0
+        lastScrollY.clear()
+        shiftAtCapture = 0f
+        knownAtCapture = 0
+        unknownAtCapture = 0
+        composeAtCapture = 0
+    }
+
+    private fun recordCaptureTime() {
+        shiftAtCapture = targetShift
+        knownAtCapture = knownScrolls
+        unknownAtCapture = unknownScrolls
+        composeAtCapture = composeScrollY
+    }
+
+    /** A new snapshot is in: it replaces the old one, which is then lined up with it. */
+    private fun adopt(snap: Snapshot) {
+        // The app reported this much scroll between the two snapshots; only trusted when every event had a delta.
+        val guess = if (knownAtCapture > 0 && unknownAtCapture == 0) shiftAtCapture.roundToInt() else null
+        val composeMoved = if (unknownAtCapture > 0) composeAtCapture else null
+        // Scrolls after the capture still apply to the new snapshot.
+        shiftAnimator?.cancel()
+        targetShift -= shiftAtCapture
+        shownShift = targetShift
+        knownScrolls -= knownAtCapture
+        unknownScrolls -= unknownAtCapture
+        composeScrollY -= composeAtCapture
+        shiftAtCapture = 0f
+        knownAtCapture = 0
+        unknownAtCapture = 0
+        composeAtCapture = 0
+        scrolling = false
+
+        val c = content
+        val previous: Snapshot?
+        if (c == null || lens == null || c.width != snap.bitmap.width || c.height != snap.bitmap.height) {
+            c?.let {
+                it.clear()
+                release(it.snapshot)
+            }
+            content = ScreenContent(snap)
+            chain++
+            previous = null
+        } else {
+            previous = c.snapshot
+            c.replace(snap)
+        }
+        register(previous, snap, guess, composeMoved)
+        previous?.let(::release)
+    }
+
+    private fun register(previous: Snapshot?, snap: Snapshot, guess: Int?, composeMoved: Int?) {
+        val gen = chain
+        pin(snap)
+        previous?.let(::pin)
+        registering++
+        try {
+            worker.execute {
+                val hashes = rowHashes(snap.bitmap)
+                val base = workerHashes.takeIf { workerChain == gen && previous != null }
+                val result = base?.let { ScrollRegistration.register(it, hashes, guess) }
+                workerChain = gen
+                workerHashes = hashes
+                main.post { onRegistered(gen, previous, snap, result, guess, composeMoved) }
+            }
+        } catch (e: RejectedExecutionException) {
+            // Destroyed meanwhile.
+            onRegistered(gen, previous, snap, null, guess, composeMoved)
+        }
+    }
+
+    // Worker thread only: the hashes of the last snapshot it saw, and its chain.
+    private var workerChain = -1
+    private var workerHashes: IntArray? = null
+
+    private fun onRegistered(
+        gen: Int,
+        previous: Snapshot?,
+        snap: Snapshot,
+        result: ScrollRegistration.Result?,
+        guess: Int?,
+        composeMoved: Int?,
+    ) {
+        registering--
+        try {
+            val c = content
+            if (gen != chain || c == null || result == null) return
+            val map = c.map
+            when (result) {
+                is ScrollRegistration.Shifted -> {
+                    val fresh = !map.hasBand || map.provisional || map.stored == 0
+                    val pos = map.scrollPos
+                    val overlaps = !fresh && result.bandTop < map.bandBottom && result.bandBottom > map.bandTop
+                    if (overlaps) {
+                        // Same list: the band only grows, as rows that looked fixed turn out to move.
+                        map.setBand(minOf(map.bandTop, result.bandTop), maxOf(map.bandBottom, result.bandBottom), provisional = false)
+                    } else {
+                        map.setBand(result.bandTop, result.bandBottom, provisional = false)
+                    }
+                    if (fresh && previous != null) c.merge(previous, pos)
+                    map.scrollPos = pos + result.offset
+                    c.merge(snap, map.scrollPos)
+                    // Scroll events arrive up to ~100 ms late, so some reported after the capture
+                    // describe movement the snapshot already shows. The images say how much really
+                    // moved; take that excess back out of the shift carried over.
+                    if (gen == chain && snap === c.snapshot) {
+                        val late = (result.offset - (guess ?: 0)).toFloat()
+                        val undo = if (late > 0) late.coerceAtMost(maxOf(targetShift, 0f)) else late.coerceAtLeast(minOf(targetShift, 0f))
+                        if (undo != 0f) {
+                            shiftAnimator?.cancel()
+                            targetShift -= undo
+                            shownShift = targetShift
+                        }
+                    }
+                    if (debuggable) {
+                        Log.d(TAG, "registered: offset ${result.offset}, band ${result.bandTop}–${result.bandBottom}, " +
+                            "confidence ${"%.2f".format(result.confidence)}, reported ${guess ?: "-"}, compose scrollY Δ ${composeMoved ?: "-"}")
+                    }
+                }
+                ScrollRegistration.Still -> if (map.hasBand && !map.provisional) c.merge(snap, map.scrollPos)
+                is ScrollRegistration.Unrelated -> {
+                    if (debuggable) Log.d(TAG, "registered: unrelated, ${result.why} (reported ${guess ?: "-"}, compose scrollY Δ ${composeMoved ?: "-"})")
+                    c.clear()
+                }
+            }
+        } finally {
+            unpin(snap)
+            previous?.let(::unpin)
+            redrawLens()
+        }
+    }
+
+    private fun pin(snap: Snapshot) {
+        pinned[snap] = (pinned[snap] ?: 0) + 1
+    }
+
+    private fun unpin(snap: Snapshot) {
+        val n = (pinned[snap] ?: return) - 1
+        if (n > 0) {
+            pinned[snap] = n
+            return
+        }
+        pinned.remove(snap)
+        if (doomed.remove(snap)) snap.recycle()
+    }
+
+    /** Recycles [snap] now, or once nothing reads it any more. */
+    private fun release(snap: Snapshot) {
+        if (snap in pinned) doomed.add(snap) else snap.recycle()
+    }
+
     fun dismissLens(animated: Boolean = true) {
         val view = lens ?: return
         lens = null
         lensParams = null
-        val snap = snapshot
-        snapshot = null
+        val old = content
+        content = null
+        chain++
+        resetShift()
+        scrolling = false
         namer.reset()
         main.removeCallbacks(announce)
         main.removeCallbacks(autoRefresh)
@@ -430,7 +708,10 @@ class OverlayController(
 
         val release = Runnable {
             if (view.isAttachedToWindow) wm.removeView(view)
-            snap?.recycle()
+            old?.let {
+                it.clear()
+                release(it.snapshot)
+            }
         }
         if (animated && showing && animationsEnabled()) {
             view.animate().alpha(0f).scaleX(0.3f).scaleY(0.3f).setDuration(DISMISS_MS)
@@ -536,20 +817,34 @@ class OverlayController(
         return cutouts.any { Rect.intersects(it, label) }
     }
 
+    /** Debug builds: where the lens centre was last drawn from, to log changes. */
+    private var lastCentreSource = -1
+
     private fun updateSample(view: LensView) {
-        val snap = snapshot ?: return
+        val c = content ?: return
+        val snap = c.snapshot
         val bounds = screen
-        val bx = (centerX * snap.bitmap.width / bounds.width()).toInt()
-        val by = (centerY * snap.bitmap.height / bounds.height()).toInt()
-        val rgb = snap.sampleSrgb(bx, by, view.sampleRadius)
-        val label = if (snap.looksProtected) {
-            ColorLabel(context.getString(R.string.protected_content), context.getString(R.string.protected_content_detail))
-        } else {
-            ColorLocalization.label(namer.match(rgb), lang)
+        val bx = (centerX * c.width / bounds.width()).toInt()
+        val by = (centerY * c.height / bounds.height()).toInt()
+        // Shift only when the lens centre is over the scrolling band: a lens on a toolbar stays put.
+        c.map.shift = if (registering == 0 && c.map.inBand(by)) shownShift.roundToInt() else 0
+        val rgb = c.sampleSrgb(bx, by, view.sampleRadius)
+        if (debuggable) {
+            val from = c.map.locate(by)
+            if (from != lastCentreSource) Log.v(TAG, "lens centre now from ${arrayOf("snapshot", "stitched buffer", "nothing yet")[from]} · ${c.describe()}")
+            lastCentreSource = from
         }
+        val label = when {
+            snap.looksProtected ->
+                ColorLabel(context.getString(R.string.protected_content), context.getString(R.string.protected_content_detail))
+            // Scrolled onto content not seen yet: a neutral placeholder until the next snapshot.
+            rgb == null -> ColorLabel(UNSEEN_NAME, "")
+            else -> ColorLocalization.label(namer.match(rgb), lang)
+        }
+        val shown = rgb ?: UNSEEN_RGB
         val changed = label.name != view.label?.name
-        view.bind(snap, bx, by, rgb, label, debugLine = "${snap.describe()} · ${Srgb.toHex(rgb)}")
-        if (changed && settings.haptics) view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+        view.bind(c, bx, by, shown, label, debugLine = "${snap.describe()} · ${c.describe()} · ${Srgb.toHex(shown)}")
+        if (changed && settings.haptics && !scrolling) view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
     }
 
     // --- TalkBack: announce the name once the lens has settled, and only if it changed.
@@ -589,6 +884,7 @@ class OverlayController(
 
     private fun requestCapture(id: Int, then: () -> Unit, retriesLeft: Int) {
         if (id != captureId || !capturing) return
+        recordCaptureTime()
         capturer.capture { result ->
             if (id != captureId || !capturing) {
                 result.getOrNull()?.recycle()
@@ -602,9 +898,7 @@ class OverlayController(
             }
             endCapture()
             result.onSuccess { snap ->
-                val old = snapshot
-                snapshot = snap
-                old?.recycle()
+                adopt(snap)
                 namer.reset()
                 Log.i(TAG, "capture ok: ${snap.describe()}")
                 then()
@@ -664,5 +958,16 @@ class OverlayController(
         private const val EXTRA_CAPTURE_DELAY_MS = 32L
         private const val RETRY_DELAY_MS = 350L
         private const val CAPTURE_TIMEOUT_MS = 3000L
+
+        /** What scroll events report when the app does not give a distance. */
+        const val UNKNOWN_DELTA = -1
+
+        /** Glide between scroll events over about the time between them, within these bounds. */
+        private const val MIN_GLIDE_MS = 16L
+        private const val MAX_GLIDE_MS = 120L
+
+        /** Name and swatch while the lens is over content not seen yet. */
+        private const val UNSEEN_NAME = "…"
+        private const val UNSEEN_RGB = 0x404040
     }
 }

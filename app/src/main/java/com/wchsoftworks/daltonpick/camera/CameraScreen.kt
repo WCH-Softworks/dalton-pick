@@ -339,7 +339,8 @@ private fun CameraContent(onClose: () -> Unit) {
             NameLabel(reading, settings.showHex, settledName, speak)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (frozen == null) {
-                    Button(onClick = ::freeze) { Text(stringResource(R.string.camera_freeze)) }
+                    // Nothing to hold until the camera has sent a frame.
+                    Button(onClick = ::freeze, enabled = reading != null) { Text(stringResource(R.string.camera_freeze)) }
                 } else {
                     Button(onClick = ::resume) { Text(stringResource(R.string.camera_resume)) }
                 }

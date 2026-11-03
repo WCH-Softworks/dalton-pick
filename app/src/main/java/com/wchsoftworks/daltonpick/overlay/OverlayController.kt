@@ -78,6 +78,7 @@ class OverlayController(
     private var snapAnimator: ValueAnimator? = null
 
     val tabY: Int get() = tabParams.y
+    val lensOpen: Boolean get() = lens != null
 
     private val screen get() = wm.currentWindowMetrics.bounds
     private val lang get() = Lang.fromTag(context.resources.configuration.locales[0].toLanguageTag())
@@ -242,7 +243,10 @@ class OverlayController(
         persist { it.copy(tabPosition = fraction) }
     }
 
-    /** Tap: put the lens away, or open it at screen centre (also what TalkBack's double-tap does). */
+    /**
+     * Click: put the lens away, or open it at screen centre. A touch tap only gets here with the
+     * lens open or TalkBack on ([TabGesture.release]); TalkBack's double-tap always does.
+     */
     fun tapTab() {
         if (lens != null) {
             dismissLens()

@@ -1,8 +1,10 @@
 package com.wchsoftworks.daltonpick.ui
 
 import android.app.LocaleManager
+import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.LocaleList
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -26,7 +28,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.Column
 import com.wchsoftworks.daltonpick.R
 import com.wchsoftworks.daltonpick.settings.Edge
 import com.wchsoftworks.daltonpick.settings.Settings
@@ -35,50 +36,69 @@ import com.wchsoftworks.daltonpick.settings.Settings
 fun SettingsScreen(state: AppState, onBack: () -> Unit) {
     val s = state.settings
     val update = state.update
+    val context = LocalContext.current
+    val debuggable = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
     ScreenScaffold(title = stringResource(R.string.settings_title), onBack = onBack) {
         SectionTitle(stringResource(R.string.settings_tab))
-        SwitchRow(stringResource(R.string.setting_tab_visible), s.tabVisible, { v -> update { it.copy(tabVisible = v) } })
-        Text(stringResource(R.string.setting_edge), style = MaterialTheme.typography.bodyLarge)
-        Segmented(
-            options = listOf(Edge.LEFT to stringResource(R.string.edge_left), Edge.RIGHT to stringResource(R.string.edge_right)),
-            selected = s.edge,
-            onSelect = { e -> update { it.copy(edge = e) } },
-        )
-        SwitchRow(
-            stringResource(R.string.setting_auto_dim), s.autoDim, { v -> update { it.copy(autoDim = v) } },
-            subtitle = stringResource(R.string.setting_auto_dim_hint),
-        )
+        Group {
+            SwitchRow(stringResource(R.string.setting_tab_visible), s.tabVisible, { v -> update { it.copy(tabVisible = v) } })
+            Segmented(
+                label = stringResource(R.string.setting_edge),
+                options = listOf(Edge.LEFT to stringResource(R.string.edge_left), Edge.RIGHT to stringResource(R.string.edge_right)),
+                selected = s.edge,
+                onSelect = { e -> update { it.copy(edge = e) } },
+            )
+            SwitchRow(
+                stringResource(R.string.setting_auto_dim), s.autoDim, { v -> update { it.copy(autoDim = v) } },
+                subtitle = stringResource(R.string.setting_auto_dim_hint),
+            )
+        }
 
         SectionTitle(stringResource(R.string.settings_lens))
-        IntSliderRow(
-            stringResource(R.string.setting_lens_size, s.lensSizeDp), s.lensSizeDp, Settings.LENS_SIZE_RANGE_DP, step = 10,
-        ) { v -> update { it.copy(lensSizeDp = v) } }
-        IntSliderRow(stringResource(R.string.setting_zoom, s.zoom), s.zoom, Settings.ZOOM_RANGE, step = 1) { v ->
-            update { it.copy(zoom = v) }
+        Group {
+            IntSliderRow(
+                stringResource(R.string.setting_lens_size), stringResource(R.string.setting_lens_size_value, s.lensSizeDp),
+                s.lensSizeDp, Settings.LENS_SIZE_RANGE_DP, step = 10,
+            ) { v -> update { it.copy(lensSizeDp = v) } }
+            IntSliderRow(
+                stringResource(R.string.setting_zoom), stringResource(R.string.setting_zoom_value, s.zoom), s.zoom, Settings.ZOOM_RANGE, step = 1,
+            ) { v -> update { it.copy(zoom = v) } }
+            Segmented(
+                label = stringResource(R.string.setting_sample),
+                options = Settings.SAMPLE_SIZES.map { it to stringResource(R.string.sample_size_option, it) },
+                selected = s.sampleSize,
+                onSelect = { v -> update { it.copy(sampleSize = v) } },
+            )
+            GroupText(stringResource(R.string.setting_sample_hint))
         }
-        Text(stringResource(R.string.setting_sample), style = MaterialTheme.typography.bodyLarge)
-        Segmented(
-            options = Settings.SAMPLE_SIZES.map { it to stringResource(R.string.sample_size_option, it) },
-            selected = s.sampleSize,
-            onSelect = { v -> update { it.copy(sampleSize = v) } },
-        )
-        Hint(stringResource(R.string.setting_sample_hint))
 
         SectionTitle(stringResource(R.string.settings_label))
-        SwitchRow(stringResource(R.string.setting_show_hex), s.showHex, { v -> update { it.copy(showHex = v) } })
-        SwitchRow(stringResource(R.string.setting_haptics), s.haptics, { v -> update { it.copy(haptics = v) } })
+        Group {
+            SwitchRow(stringResource(R.string.setting_show_hex), s.showHex, { v -> update { it.copy(showHex = v) } })
+            SwitchRow(stringResource(R.string.setting_haptics), s.haptics, { v -> update { it.copy(haptics = v) } })
+        }
 
         LanguageSection()
 
-        SectionTitle(stringResource(R.string.setting_developer))
-        SwitchRow(stringResource(R.string.setting_show_debug), s.showDebug, { v -> update { it.copy(showDebug = v) } })
-        SwitchRow(stringResource(R.string.setting_secure_test), state.secureTest, state.setSecureTest)
+        // For testing: debug builds, or after tapping the version in About a few times.
+        if (debuggable || s.developerOptions) {
+            SectionTitle(stringResource(R.string.setting_developer))
+            Group {
+                SwitchRow(stringResource(R.string.setting_show_debug), s.showDebug, { v -> update { it.copy(showDebug = v) } })
+                SwitchRow(stringResource(R.string.setting_secure_test), state.secureTest, state.setSecureTest)
+            }
+        }
     }
 }
 
 @Composable
-private fun <T> Segmented(options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit) {
-    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+private fun <T> Segmented(label: String, options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit) {
+    Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp))
+    SingleChoiceSegmentedButtonRow(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+    ) {
         options.forEachIndexed { i, (value, label) ->
             SegmentedButton(
                 selected = value == selected,
@@ -107,25 +127,28 @@ private fun LanguageSection() {
         "pt-BR" to "Português (Brasil)",
     )
     SectionTitle(stringResource(R.string.settings_language))
-    Column(Modifier.selectableGroup()) {
-        for ((tag, name) in options) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp)
-                    .selectable(
-                        selected = current == tag,
-                        role = Role.RadioButton,
-                        onClick = {
-                            current = tag
-                            // The activity restarts in the new language.
-                            manager.applicationLocales = if (tag.isEmpty()) LocaleList.getEmptyLocaleList() else LocaleList.forLanguageTags(tag)
-                        },
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                RadioButton(selected = current == tag, onClick = null)
-                Text(name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp))
+    Group {
+        Column(Modifier.selectableGroup()) {
+            for ((tag, name) in options) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp)
+                        .selectable(
+                            selected = current == tag,
+                            role = Role.RadioButton,
+                            onClick = {
+                                current = tag
+                                // The activity restarts in the new language.
+                                manager.applicationLocales = if (tag.isEmpty()) LocaleList.getEmptyLocaleList() else LocaleList.forLanguageTags(tag)
+                            },
+                        )
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(selected = current == tag, onClick = null)
+                    Text(name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp))
+                }
             }
         }
     }

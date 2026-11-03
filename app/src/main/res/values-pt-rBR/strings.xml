@@ -6,6 +6,7 @@
     <string name="back">Voltar</string>
     <string name="state_on">Ativado</string>
     <string name="state_off">Desativado</string>
+    <string name="state_optional">Opcional</string>
     <string name="btn_allow">Permitir</string>
     <string name="btn_turn_on">Ativar</string>
     <string name="btn_open_accessibility">Abrir configurações de acessibilidade</string>
@@ -47,8 +48,10 @@
     <string name="setting_auto_dim">Escurecer a aba quando parada</string>
     <string name="setting_auto_dim_hint">A aba fica mais fraca depois de 3 segundos e volta ao normal quando você toca nela.</string>
     <string name="settings_lens">Lupa</string>
-    <string name="setting_lens_size">Tamanho da lupa: %1$d dp</string>
-    <string name="setting_zoom">Zoom: %1$d×</string>
+    <string name="setting_lens_size">Tamanho da lupa</string>
+    <string name="setting_lens_size_value">%1$d dp</string>
+    <string name="setting_zoom">Zoom</string>
+    <string name="setting_zoom_value">%1$d×</string>
     <string name="setting_sample">Tamanho da amostra</string>
     <string name="sample_size_option">%1$d×%1$d</string>
     <string name="setting_sample_hint">Uma amostra maior tira a média de alguns pixels, o que deixa o nome mais estável em fotos e bordas suaves.</string>
@@ -74,6 +77,7 @@
     <!-- About -->
     <string name="about_title">Sobre</string>
     <string name="about_version">Versão %1$s</string>
+    <string name="developer_unlocked">Opções do desenvolvedor ativadas. Elas ficam no fim de Ajustes.</string>
     <string name="about_free">Grátis, sem anúncios, sem rastreamento e sem conta. O DaltonPick nunca se conecta à internet.</string>
     <string name="about_support">Apoie o DaltonPick</string>
     <string name="about_support_text">Se o DaltonPick ajuda você, você pode me pagar um café.</string>
@@ -143,6 +147,7 @@
 
     <string name="tab_description">Lupa de cores do DaltonPick. Toque duas vezes para abrir.</string>
     <string name="tab_action_switch_edge">Mover para o outro lado da tela</string>
+    <string name="tab_pull_hint">Puxe a aba em direção ao centro para abrir a lupa.</string>
     <string name="lens_action_close">Fechar a lupa</string>
     <string name="lens_action_refresh">Olhar de novo</string>
 

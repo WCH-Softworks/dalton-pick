@@ -16,7 +16,7 @@ class SettingsTest {
         val s = Settings(
             lensSizeDp = 180, zoom = 5, edge = Edge.LEFT, autoDim = false, sampleSize = 5,
             showHex = true, haptics = false, showDebug = true, tabVisible = false, tabPosition = 0.6f,
-            onboardingDone = true, cameraOpens = 2,
+            onboardingDone = true, cameraOpens = 2, pullHints = 1, developerOptions = true,
         )
         val prefs = mutablePreferencesOf().apply { write(s) }
         assertEquals(s, prefs.toSettings())

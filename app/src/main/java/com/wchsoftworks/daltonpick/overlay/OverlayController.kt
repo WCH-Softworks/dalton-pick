@@ -4,7 +4,9 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.graphics.PixelFormat
+import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -18,6 +20,7 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.animation.LinearInterpolator
 import android.view.accessibility.AccessibilityManager
+import android.widget.TextView
 import android.widget.Toast
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
@@ -76,6 +79,8 @@ class OverlayController(
     private var dragStartY = 0f
     private var lastAnnounced: String? = null
     private var snapAnimator: ValueAnimator? = null
+    private var pullHint: TextView? = null
+    private val hidePullHint = Runnable { removePullHint() }
 
     val tabY: Int get() = tabParams.y
     val lensOpen: Boolean get() = lens != null
@@ -139,11 +144,12 @@ class OverlayController(
 
     // --- Settings and lifecycle
 
-    fun apply(new: Settings) {
+    /** [paused]: one of DaltonPick's own screens that has no use for the tab (camera mode) is in front. */
+    fun apply(new: Settings, paused: Boolean = false) {
         val old = settings
         settings = new
 
-        if (!new.tabVisible) {
+        if (!new.tabVisible || paused) {
             hide()
             return
         }
@@ -182,6 +188,7 @@ class OverlayController(
         }
         dismissLens(animated = false)
         main.removeCallbacks(dimTab)
+        removePullHint()
         snapAnimator?.cancel()
         if (showing && tab.isAttachedToWindow) wm.removeView(tab)
         showing = false
@@ -256,6 +263,52 @@ class OverlayController(
         }
     }
 
+    /** A tap that didn't open the lens: say how it opens, for the first few times. */
+    fun onTapHinted() {
+        if (settings.pullHints >= MAX_PULL_HINTS) return
+        showPullHint()
+        persist { it.copy(pullHints = it.pullHints + 1) }
+    }
+
+    /**
+     * A small bubble beside the tab. Drawn in our own overlay rather than as a toast, because Android
+     * drops a background app's toasts when its notifications are off, and notifications are optional here.
+     */
+    private fun showPullHint() {
+        removePullHint()
+        val pad = (12 * density).toInt()
+        val view = TextView(context).apply {
+            setText(R.string.tab_pull_hint)
+            setTextColor(Color.WHITE)
+            textSize = 14f
+            maxWidth = (240 * density).toInt()
+            setPadding(pad, pad * 2 / 3, pad, pad * 2 / 3)
+            background = GradientDrawable().apply {
+                setColor(0xE6202020.toInt())
+                setStroke(density.toInt().coerceAtLeast(1), 0x59FFFFFF)
+                cornerRadius = 16 * density
+            }
+        }
+        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+        val gap = (4 * density).toInt()
+        val params = overlayParams(view.measuredWidth, view.measuredHeight).apply {
+            flags = flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            x = if (onRight) dockedX(true) - width - gap else tabWidthPx + gap
+            y = tabParams.y + (tabHeightPx - height) / 2
+        }
+        if (!addWindow(view, params)) return
+        pullHint = view
+        view.alpha = 0f
+        view.animate().alpha(1f).setDuration(DIM_FADE_MS).start()
+        main.postDelayed(hidePullHint, PULL_HINT_MS)
+    }
+
+    private fun removePullHint() {
+        main.removeCallbacks(hidePullHint)
+        pullHint?.let { if (it.isAttachedToWindow) wm.removeView(it) }
+        pullHint = null
+    }
+
     fun switchEdge() {
         persist { it.copy(edge = if (it.edge == Edge.RIGHT) Edge.LEFT else Edge.RIGHT) }
     }
@@ -325,6 +378,8 @@ class OverlayController(
     }
 
     fun onTabTouched() {
+        // Before a pull can start, so the bubble never ends up in the snapshot.
+        removePullHint()
         main.removeCallbacks(dimTab)
         tab.animate().cancel()
         tab.alpha = 1f
@@ -949,6 +1004,8 @@ class OverlayController(
         private const val SNAP_MS = 160L
         private const val DISMISS_MS = 140L
         private const val ANNOUNCE_DEBOUNCE_MS = 700L
+        private const val MAX_PULL_HINTS = 3
+        private const val PULL_HINT_MS = 2500L
 
         /** Scroll events keep coming while content moves; refresh this long after the last one. */
         private const val SETTLE_AFTER_SCROLL_MS = 250L

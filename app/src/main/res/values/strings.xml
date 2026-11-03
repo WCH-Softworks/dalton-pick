@@ -7,6 +7,7 @@
     <string name="back">Back</string>
     <string name="state_on">On</string>
     <string name="state_off">Off</string>
+    <string name="state_optional">Optional</string>
     <string name="btn_allow">Allow</string>
     <string name="btn_turn_on">Turn on</string>
     <string name="btn_open_accessibility">Open Accessibility settings</string>
@@ -48,8 +49,10 @@
     <string name="setting_auto_dim">Dim the tab when idle</string>
     <string name="setting_auto_dim_hint">Fades the tab after 3 seconds. It brightens again when you touch it.</string>
     <string name="settings_lens">Lens</string>
-    <string name="setting_lens_size">Lens size: %1$d dp</string>
-    <string name="setting_zoom">Zoom: %1$d×</string>
+    <string name="setting_lens_size">Lens size</string>
+    <string name="setting_lens_size_value">%1$d dp</string>
+    <string name="setting_zoom">Zoom</string>
+    <string name="setting_zoom_value">%1$d×</string>
     <string name="setting_sample">Sample size</string>
     <string name="sample_size_option">%1$d×%1$d</string>
     <string name="setting_sample_hint">A larger sample averages a few pixels, which steadies the name on photos and soft edges.</string>
@@ -75,6 +78,7 @@
     <!-- About -->
     <string name="about_title">About</string>
     <string name="about_version">Version %1$s</string>
+    <string name="developer_unlocked">Developer options are on. Find them at the end of Settings.</string>
     <string name="about_free">Free, with no ads, no tracking and no account. DaltonPick never goes online.</string>
     <string name="about_support">Support DaltonPick</string>
     <string name="about_support_text">If DaltonPick helps you, you can buy me a coffee.</string>
@@ -144,6 +148,7 @@
 
     <string name="tab_description">DaltonPick color lens. Double-tap to open.</string>
     <string name="tab_action_switch_edge">Move to the other side of the screen</string>
+    <string name="tab_pull_hint">Pull the tab toward the middle to open the lens.</string>
     <string name="lens_action_close">Close lens</string>
     <string name="lens_action_refresh">Look again</string>
 

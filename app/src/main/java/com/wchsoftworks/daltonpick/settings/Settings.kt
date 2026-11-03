@@ -29,6 +29,10 @@ data class Settings(
     val onboardingDone: Boolean = false,
     /** How many times camera mode has opened; the lighting hint shows for the first few (spec §4.4). */
     val cameraOpens: Int = 0,
+    /** How many times a tap on the tab has shown the "pull it" toast; it stops after a few. */
+    val pullHints: Int = 0,
+    /** The Developer section in Settings, unlocked by tapping the version in About (always shown in debug builds). */
+    val developerOptions: Boolean = false,
 ) {
     val sampleRadius: Int get() = sampleSize / 2
 
@@ -56,6 +60,8 @@ internal object SettingsKeys {
     val tabPosition = floatPreferencesKey("tab_position")
     val onboardingDone = booleanPreferencesKey("onboarding_done")
     val cameraOpens = intPreferencesKey("camera_opens")
+    val pullHints = intPreferencesKey("pull_hints")
+    val developerOptions = booleanPreferencesKey("developer_options")
 }
 
 /** Reads stored values, falling back to defaults and clamping anything out of range. */
@@ -75,6 +81,8 @@ internal fun Preferences.toSettings(): Settings {
         tabPosition = (this[SettingsKeys.tabPosition] ?: d.tabPosition).coerceIn(0f, 1f),
         onboardingDone = this[SettingsKeys.onboardingDone] ?: d.onboardingDone,
         cameraOpens = (this[SettingsKeys.cameraOpens] ?: d.cameraOpens).coerceAtLeast(0),
+        pullHints = (this[SettingsKeys.pullHints] ?: d.pullHints).coerceAtLeast(0),
+        developerOptions = this[SettingsKeys.developerOptions] ?: d.developerOptions,
     )
 }
 
@@ -91,4 +99,6 @@ internal fun MutablePreferences.write(s: Settings) {
     this[SettingsKeys.tabPosition] = s.tabPosition
     this[SettingsKeys.onboardingDone] = s.onboardingDone
     this[SettingsKeys.cameraOpens] = s.cameraOpens
+    this[SettingsKeys.pullHints] = s.pullHints
+    this[SettingsKeys.developerOptions] = s.developerOptions
 }

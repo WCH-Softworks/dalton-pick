@@ -129,7 +129,7 @@ fun DaltonApp(requested: Screen?, onRequestHandled: () -> Unit) {
         Screen.HOME -> HomeScreen(state, open)
         Screen.SETTINGS -> SettingsScreen(state, back)
         Screen.TEST_CHART -> TestChartScreen(back)
-        Screen.ABOUT -> AboutScreen(back, open)
+        Screen.ABOUT -> AboutScreen(state, back, open)
         Screen.LICENSES -> LicensesScreen(back)
     }
 }

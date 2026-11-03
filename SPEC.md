@@ -27,7 +27,7 @@ The app is **free, with no ads, no purchases and no account**. A Ko-fi link in t
 ### 4.1 Idle state: "hidden away"
 - A small, semi-transparent **edge tab** (about 8×48 dp) docked to the left or right edge of the screen, floating over all apps.
 - The user can drag it along the edge to change its vertical position, and can snap it to the other edge. The position is remembered.
-- Only a pull opens the lens (§4.2). A tap doesn't, because tapping was too easy to do by accident (found in testing on a phone). Instead it nudges the tab inward and back, to show that it pulls. A tap with the lens open puts it away, and TalkBack's double-tap opens it.
+- Only a pull opens the lens (§4.2). A tap doesn't, because tapping was too easy to do by accident (found in testing on a phone). Instead it nudges the tab inward and back, to show that it pulls, and for the first three taps a small bubble beside the tab says "Pull the tab toward the middle to open the lens." The tab carries three grip dots so it reads as a handle, not a scrollbar, and it steps aside while camera mode is on screen. A tap with the lens open puts it away, and TalkBack's double-tap opens it.
 - Optional auto-dim to about 30% opacity after 3 s without interaction.
 - A Quick Settings tile and a persistent notification can show or hide the tab entirely.
 - With gesture navigation, a swipe from the screen edge is the system **back gesture**. The tab therefore excludes its own area from system gestures with `setSystemGestureExclusionRects`. Android allows up to 200 dp per edge; the tab is 56 dp. This was found in M0.

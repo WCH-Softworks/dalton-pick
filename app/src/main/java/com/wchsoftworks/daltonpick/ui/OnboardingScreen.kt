@@ -2,7 +2,9 @@ package com.wchsoftworks.daltonpick.ui
 
 import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
@@ -25,8 +29,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.LinkAnnotation
@@ -67,11 +74,7 @@ fun OnboardingScreen(state: AppState) {
                     TextButton(onClick = finish) { Text(stringResource(R.string.onboarding_skip)) }
                 }
                 Spacer(Modifier.weight(1f))
-                Text(
-                    stringResource(R.string.onboarding_progress, index + 1, steps.size),
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
+                ProgressDots(index, steps.size, stringResource(R.string.onboarding_progress, index + 1, steps.size))
                 if (step == Step.DONE) {
                     Button(onClick = finish) { Text(stringResource(R.string.onboarding_start)) }
                 } else {
@@ -99,6 +102,28 @@ fun OnboardingScreen(state: AppState) {
     }
 }
 
+/** Where you are in the steps: one dot per step, the current one wider. Read out as "2 of 5". */
+@Composable
+private fun ProgressDots(index: Int, count: Int, description: String) {
+    Row(
+        Modifier
+            .padding(horizontal = 16.dp)
+            .clearAndSetSemantics { contentDescription = description },
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        repeat(count) { i ->
+            val current = i == index
+            Box(
+                Modifier
+                    .size(width = if (current) 20.dp else 8.dp, height = 8.dp)
+                    .clip(CircleShape)
+                    .background(if (current) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
+            )
+        }
+    }
+}
+
 @Composable
 private fun Title(text: String) {
     Text(text, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
@@ -106,6 +131,7 @@ private fun Title(text: String) {
 
 @Composable
 private fun Welcome() {
+    AppMark(72.dp)
     Title(stringResource(R.string.onb_welcome_title))
     Body(stringResource(R.string.onb_welcome_body))
     Body(stringResource(R.string.onb_welcome_privacy))
@@ -119,6 +145,7 @@ private fun TurnOnLens(state: AppState) {
     Body(stringResource(R.string.onb_lens_warning))
     StatusRow(
         title = stringResource(R.string.req_accessibility),
+        icon = R.drawable.ic_lens,
         ok = state.status.accessibilityOn,
         explanation = stringResource(R.string.onb_lens_steps),
         actionLabel = stringResource(R.string.btn_open_accessibility),

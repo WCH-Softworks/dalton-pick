@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
+import com.wchsoftworks.daltonpick.overlay.OverlayRuntime
 import com.wchsoftworks.daltonpick.settings.SettingsRepository
 import com.wchsoftworks.daltonpick.ui.DaltonTheme
 import kotlinx.coroutines.launch
@@ -23,5 +24,16 @@ class CameraActivity : ComponentActivity() {
                 CameraScreen(onClose = ::finish)
             }
         }
+    }
+
+    // The edge tab steps aside while camera mode is on screen.
+    override fun onStart() {
+        super.onStart()
+        OverlayRuntime.cameraInFront.value = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        OverlayRuntime.cameraInFront.value = false
     }
 }

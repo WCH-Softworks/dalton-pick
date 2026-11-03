@@ -42,6 +42,7 @@ class EdgeTabView(context: Context, private val controller: OverlayController) :
         strokeWidth = 1.5f * density
         color = 0xCC202020.toInt()
     }
+    private val grip = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xCC202020.toInt() }
     private val pill = RectF()
 
     private var mode = Mode.NONE
@@ -82,6 +83,10 @@ class EdgeTabView(context: Context, private val controller: OverlayController) :
         val r = w / 2
         canvas.drawRoundRect(pill, r, r, fill)
         canvas.drawRoundRect(pill, r, r, outline)
+        // Three grip dots, so the pill reads as a handle and not as a scrollbar.
+        val dot = GRIP_DOT_DP * density
+        val gap = GRIP_GAP_DP * density
+        for (i in -1..1) canvas.drawCircle(pill.centerX(), pill.centerY() + i * gap, dot, grip)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -143,6 +148,7 @@ class EdgeTabView(context: Context, private val controller: OverlayController) :
 
     /** A tap doesn't open the lens: nudge the pill inward and back, the way it is meant to be pulled. */
     private fun hintPull() {
+        controller.onTapHinted()
         if (!ValueAnimator.areAnimatorsEnabled()) return
         nudgeAnimator?.cancel()
         nudgeAnimator = ValueAnimator.ofFloat(0f, 1f, 0f).apply {
@@ -171,13 +177,15 @@ class EdgeTabView(context: Context, private val controller: OverlayController) :
     }
 
     companion object {
-        const val VISUAL_WIDTH_DP = 8
+        const val VISUAL_WIDTH_DP = 10
         const val TOUCH_WIDTH_DP = 28
         const val HEIGHT_DP = 56
 
         /** How far a tap nudges the pill inward (it fits inside the 28 dp touch width). */
         private const val NUDGE_DP = 10
         private const val NUDGE_MS = 420L
+        private const val GRIP_DOT_DP = 1.25f
+        private const val GRIP_GAP_DP = 6f
         private val ACTION_SWITCH_EDGE = R.id.action_switch_edge
     }
 }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 /**
@@ -54,8 +55,8 @@ class OverlayRuntime(
         active = this
         runningHost.value = capturer.name
         scope.launch {
-            repo.flow.collect { settings ->
-                controller.apply(settings)
+            combine(repo.flow, cameraInFront) { settings, paused -> settings to paused }.collect { (settings, paused) ->
+                controller.apply(settings, paused)
                 context.getSystemService(NotificationManager::class.java)
                     .notify(OverlayNotification.ID, OverlayNotification.build(context, settings.tabVisible, withStopAction))
                 refreshTile(context)
@@ -91,6 +92,9 @@ class OverlayRuntime(
 
         /** The running host's capture backend ([ScreenCapturer.name]), or null; the main app watches this. */
         val runningHost = MutableStateFlow<String?>(null)
+
+        /** Camera mode is in front: the edge tab steps aside, since a screen lens over the camera lens helps no one. */
+        val cameraInFront = MutableStateFlow(false)
 
         fun refreshTile(context: Context) {
             TileService.requestListeningState(context, ComponentName(context, ToggleTileService::class.java))

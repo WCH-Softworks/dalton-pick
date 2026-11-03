@@ -116,16 +116,17 @@ Checked on the Android 16 emulator's virtual back camera (the 3D room scene). No
 - [x] Lighting hint on the first three opens (spec §4.4); a "drag to check any spot" hint while the picture is held.
 - [x] `CAMERA` requested on first use only, after an explanation screen; after a "don't ask again" denial it sends people to App info. Checked deny-then-allow.
 - [x] Home entry ("Camera lens", hidden on devices without a camera) and a launcher shortcut (long-press the icon). Checked both.
-## Pre-v1 UX review (2026-11-03) — for you to decide
+## Pre-v1 UX review (2026-11-03)
 
 From a pass over the lens, onboarding, Home, Settings and camera mode on the Android 16 emulator. Onboarding was reviewed from the code only, not walked through: resetting it means clearing app data, which also turns off the accessibility service. Fixed already: the camera's "Hold picture" button no longer looks active while the camera is still starting (before, tapping it did nothing).
 
-- [ ] **The edge tab looks like a scrollbar.** On light screens the thin white pill with its grey outline sits where scrollbars go, and at 30% dim it is barely visible. Options: a small grip mark, a color accent, or a slightly wider pill.
-- [ ] **First tap gives no words.** The nudge is the only hint that the tab is pulled. Option: a short toast ("Pull the tab toward the middle") on the first few taps. Needs es and pt-BR strings.
-- [ ] **The tab floats over DaltonPick's own camera mode.** Pulling it there puts a screen lens on top of the camera lens. Option: hide the tab while camera mode is in front.
-- [ ] **The Developer section shows in release builds** ("Show capture details", "Hide this screen from screenshots"). Option: debug builds only, or behind a hidden toggle (testers may still want it).
-- [ ] **Notifications "✕ Off" reads as an error on Home**, but the notification is optional (the Quick Settings tile covers Hide/Show). Option: a neutral "Optional" state once the user has declined.
+- [x] **The edge tab looked like a scrollbar.** The pill is now 10 dp wide (was 8) with three grip dots.
+- [x] **First tap gave no words.** For the first three taps a small bubble beside the tab says "Pull the tab toward the middle to open the lens" (en, es, pt-BR). It is drawn in the overlay, not as a toast: Android drops a background app's toasts when its notifications are off (seen on the emulator), and notifications are optional.
+- [x] **The tab floated over DaltonPick's own camera mode.** It is now hidden while camera mode is on screen and comes back when it closes (checked on the emulator).
+- [x] **The Developer section showed in release builds.** It now shows in debug builds, or after tapping the version in About seven times. Not yet checked in a release build.
+- [x] **Notifications "✕ Off" read as an error on Home.** It now reads "Optional" with a neutral symbol.
 - [ ] **Diagonal pulls.** A pull at 45° or steeper slides the tab instead (the split is at 45°). It wasn't a problem on the phone; revisit if testers report it.
+- [x] **Main app look.** Home has the app mark and a single lens card; setup rows show only while something is missing, and the screen-recording section only while the accessibility service is off. Rows sit in rounded groups with icons and chevrons, status uses icons plus words, sliders show their value on the right, onboarding shows progress dots, and Android 11 gets a blue theme from the icon instead of the default purple. Onboarding was checked from the code only.
 
 ## M5 — Hardening & QA (≈ 1 week)
 

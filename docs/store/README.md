@@ -5,6 +5,7 @@ All drafts are in three languages: English (`en`), neutral Latin American Spanis
 | File | What it is |
 |---|---|
 | `listing.en.md`, `listing.es.md`, `listing.pt-BR.md` | Play title, short description (80 chars), full description (4,000 chars). Check limits with `node docs/store/check-limits.js`. |
+| `sync-play.js` | Copies the listing text into `app/src/main/play/listings/` (en-US, es-419, pt-BR), which Gradle Play Publisher uploads. Run it after editing a listing; CI checks it. See [../RELEASE.md](../RELEASE.md). |
 | `privacy-policy.en.md`, `.es.md`, `.pt-BR.md` | Privacy policy page. Host it at a stable public URL (for example GitHub Pages from this repo) and enter that URL in Play Console. |
 | `accessibility-declaration.md` | Answers for the Play Console AccessibilityService declaration (Vision, target users, core feature), the reasoning, and reviewer Q&A. Answers in en (submit), es and pt-BR. |
 | `declaration-video-script.md` | Shot-by-shot script for the required demo video, with English captions and es / pt-BR translations. |

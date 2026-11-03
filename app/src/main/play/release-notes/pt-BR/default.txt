@@ -1,0 +1,1 @@
+Primeira versão de teste do DaltonPick: a lupa da aba lateral que diz o nome das cores e o modo câmera.

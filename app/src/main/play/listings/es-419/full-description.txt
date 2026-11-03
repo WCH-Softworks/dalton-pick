@@ -1,0 +1,40 @@
+DaltonPick ayuda a las personas con daltonismo a saber de qué color es algo, en cualquier parte de la pantalla del teléfono.
+
+Desliza la pequeña pestaña del borde de la pantalla y aparece una lupa redonda. Apunta la mira a la línea de un gráfico, la leyenda de un mapa, la foto de una prenda, el botón de un juego o una luz de estado, y la lupa te dice su nombre con palabras sencillas: "Azul marino", "Amarillo mostaza", "Rosa viejo". Debajo del nombre también ves la familia básica del color, como "Azul" o "Rosa", para que tengas el tono exacto y la respuesta simple.
+
+PARA QUÉ SIRVE
+• Distinguir las líneas rojas de las verdes, o las azules de las moradas, en un gráfico o un mapa
+• Revisar el color de la ropa en una tienda en línea o en una foto que te enviaron
+• Leer los colores de estado en aplicaciones, juegos y paneles
+• Elegir el color correcto en una herramienta de dibujo o diseño
+• Funciona sobre cualquier otra aplicación, así que no tienes que dejar lo que estás haciendo
+
+CÓMO FUNCIONA
+• La lupa amplía los píxeles que tiene debajo para que puedas apuntar a detalles muy pequeños
+• El modo de ajuste fino mueve la lupa despacio, para que tu dedo no tape el punto
+• Una vibración corta te avisa cuando cambia el nombre
+• TalkBack lee el nombre del color en voz alta
+• Elige el tamaño de la lupa, el nivel de zoom y en qué borde queda la pestaña
+• El modo cámara, opcional, nombra los colores de objetos reales, como pintura o fruta (la iluminación cambia cómo se ven los colores)
+
+GRATIS, PRIVADA Y DE CÓDIGO ABIERTO
+• Gratis. Sin anuncios. Sin compras dentro de la aplicación. Sin cuenta.
+• Sin rastreo, sin analíticas, sin recopilación de datos.
+• La aplicación no tiene el permiso de Internet. No puede enviar nada a ningún lugar.
+• Las capturas de pantalla se quedan en la memoria de tu teléfono y se descartan al cerrar la lupa. No se guarda nada.
+• Código abierto (licencia MIT). Puedes leer exactamente qué hace: https://github.com/WCH-Softworks/dalton-pick
+
+LOS PERMISOS, EXPLICADOS
+• Mostrar sobre otras aplicaciones: muestra la pestaña y la lupa encima de las demás aplicaciones.
+• Servicio de accesibilidad: DaltonPick lo usa solo para tomar una captura de la pantalla cuando sacas la lupa, y así leer el color que está bajo la mira. No lee tus mensajes, tus contraseñas ni lo que escribes, y nunca controla tu teléfono por ti. Lo activas una sola vez en los ajustes de Android y puedes desactivarlo cuando quieras.
+• Notificaciones: una pequeña notificación permanente te permite mostrar u ocultar la pestaña.
+• Cámara (solo si abres el modo cámara): la imagen en vivo se usa al instante para nombrar colores y nunca se guarda.
+Algunas aplicaciones, como las bancarias, bloquean las capturas de pantalla. En ellas, la lupa te avisará que no puede ver el contenido.
+
+IDIOMAS
+Inglés, español latinoamericano y portugués de Brasil. Los nombres de los colores están escritos a mano en cada idioma, no traducidos con una máquina.
+
+APOYA EL PROYECTO
+DaltonPick lo hace una sola persona, gratis, y todas las funciones son gratuitas para todos. Si te sirve, puedes invitarme un café en Ko-fi: https://ko-fi.com/willcaphir. Donar no desbloquea nada.
+
+DaltonPick es una herramienta de asistencia. No es un dispositivo médico y no evalúa, diagnostica ni corrige la visión de los colores.

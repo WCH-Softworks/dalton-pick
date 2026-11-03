@@ -1,0 +1,39 @@
+# Every push and pull request: unit tests, store-text checks, and an unsigned R8 release build.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Store text fits Play's limits and matches app/src/main/play
+        run: |
+          node docs/store/check-limits.js
+          node docs/store/sync-play.js --check
+
+      - name: Unit tests and release build (unsigned)
+        run: ./gradlew test bundleRelease
+
+      - name: No INTERNET permission in the release manifest
+        run: |
+          manifest=app/build/intermediates/merged_manifests/release/processReleaseManifest/AndroidManifest.xml
+          test -f "$manifest"
+          if grep -q 'android.permission.INTERNET' "$manifest"; then
+            echo "::error::The release manifest asks for INTERNET; DaltonPick must stay offline (SPEC §5.5)."
+            exit 1
+          fi

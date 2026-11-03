@@ -1,0 +1,110 @@
+# Signed release build, started by hand from the Actions tab. See docs/RELEASE.md.
+# With "upload" off it only builds the signed AAB and attaches it to the run (use that for the
+# first, manual upload in Play Console). With "upload" on it also sends it to the chosen track.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: Upload the AAB to Google Play
+        type: boolean
+        default: false
+      track:
+        description: Play track
+        type: choice
+        options: [internal, alpha]
+        default: internal
+      status:
+        description: Release status (Play accepts only draft until the app's first review passes)
+        type: choice
+        options: [draft, completed]
+        default: draft
+      listing:
+        description: Also upload the store text in app/src/main/play
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: play
+    env:
+      DALTONPICK_PLAY_TRACK: ${{ inputs.track }}
+      DALTONPICK_PLAY_STATUS: ${{ inputs.status }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Each run gets a higher version code than the last. Codes up to 100 are left for builds
+      # made outside this workflow, so the first run's code is 101.
+      - name: Version code
+        run: echo "DALTONPICK_VERSION_CODE=$((100 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: true
+
+      - name: Store text fits Play's limits and matches app/src/main/play
+        run: |
+          node docs/store/check-limits.js
+          node docs/store/sync-play.js --check
+
+      - name: Restore the upload keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.UPLOAD_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::Secret UPLOAD_KEYSTORE_BASE64 is missing (docs/RELEASE.md, step 3)."
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+          echo "DALTONPICK_UPLOAD_KEYSTORE=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+
+      - name: Unit tests and signed AAB
+        env:
+          DALTONPICK_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.UPLOAD_KEYSTORE_PASSWORD }}
+          DALTONPICK_UPLOAD_KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
+          DALTONPICK_UPLOAD_KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
+        run: |
+          ./gradlew test bundleRelease
+          jarsigner -verify app/build/outputs/bundle/release/app-release.aab
+
+      - name: Keep the AAB and R8 mapping with the run
+        uses: actions/upload-artifact@v7
+        with:
+          name: daltonpick-${{ env.DALTONPICK_VERSION_CODE }}
+          path: |
+            app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/mapping/release/mapping.txt
+          retention-days: 90
+
+      - name: Upload to Google Play (${{ inputs.track }}, ${{ inputs.status }})
+        if: inputs.upload
+        env:
+          ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          DALTONPICK_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.UPLOAD_KEYSTORE_PASSWORD }}
+          DALTONPICK_UPLOAD_KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
+          DALTONPICK_UPLOAD_KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
+        run: ./gradlew publishReleaseBundle
+
+      - name: Upload the store listing text
+        if: inputs.listing
+        env:
+          ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: ./gradlew publishListing
+
+      - name: Remove the keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.jks"

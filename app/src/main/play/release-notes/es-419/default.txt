@@ -1,0 +1,1 @@
+Primera versión de prueba de DaltonPick: la lupa de la pestaña lateral que nombra colores y el modo cámara.

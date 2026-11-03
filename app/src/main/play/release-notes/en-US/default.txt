@@ -1,0 +1,1 @@
+First test build of DaltonPick: the edge-tab lens that names colors, and camera mode.

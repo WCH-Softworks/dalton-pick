@@ -1,0 +1,1 @@
+DaltonPick: nombre del color

@@ -145,7 +145,8 @@ From a pass over the lens, onboarding, Home, Settings and camera mode on the And
 - [ ] Privacy policy page. Data Safety form ("no data collected"). Accessibility API declaration: Vision category, target users, and a video of the service being enabled and used. If rejected, appeal first, then fall back to MediaProjection.
 - [ ] Publish the source on GitHub (WCH-Softworks, MIT). Optional F-Droid release.
 - [ ] Internal → closed testing (Play requires 12+ testers for 14 days on new personal developer accounts) → production.
-- [ ] Signed release build with R8 and baseline profiles.
+- [x] Release pipeline: R8 release build signed with an upload key from GitHub secrets, CI tests on every push, a hand-started Release workflow that uploads with Gradle Play Publisher (internal or closed track), store text in `app/src/main/play`. Play Console steps are in [docs/RELEASE.md](docs/RELEASE.md).
+- [ ] Signed release build checked on a phone (R8 can break things the debug build hides). Baseline profiles.
 
 **Rough total: about 5–6 weeks for one developer** (including camera mode), plus Play review and closed-testing time.
 

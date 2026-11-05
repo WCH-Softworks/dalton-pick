@@ -103,6 +103,8 @@ Personal developer accounts created after November 2023 must run a **closed test
    - **status**: `draft` until the app's first review has passed (Play rejects anything else on a never-published app). A draft waits in Play Console for you to roll it out. Later, `completed` releases straight to the track's testers.
    - **listing**: on only when the store text changed.
 
+If the upload step fails with `503 Service Unavailable` / `backendError`, Google's side had a hiccup before anything was uploaded: use **Re-run failed jobs** on the run. The re-run keeps the run number, so it uploads the same version code. A `403` instead means the service account's Play permissions aren't active yet (step 5) or are missing.
+
 ## Building a signed AAB on your PC (optional)
 
 The same environment variables the workflow sets work locally:

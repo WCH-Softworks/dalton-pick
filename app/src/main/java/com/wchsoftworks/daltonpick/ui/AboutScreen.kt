@@ -129,7 +129,7 @@ private val LIBRARIES = listOf(
 // Same text as LICENSE in the repository.
 private const val MIT_LICENSE = """MIT License
 
-Copyright (c) 2026 Guilherme Corneto
+Copyright (c) 2026 WCH Softworks
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

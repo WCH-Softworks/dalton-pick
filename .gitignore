@@ -10,3 +10,10 @@ captures/
 *.aab
 *.jks
 *.keystore
+
+# Upload key and Play service-account key, in any form
+*.b64
+*.p12
+*.pem
+daltonpick-*.json
+*service-account*.json

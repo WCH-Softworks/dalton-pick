@@ -1,0 +1,31 @@
+name: Bug report
+description: Something doesn't work, crashes, or behaves oddly.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Issues are public. Please don't include your email, phone number or anything personal in the text or screenshots.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: phone
+    attributes:
+      label: Phone and Android version
+      placeholder: e.g. Samsung Galaxy S22, Android 16
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: DaltonPick version
+      description: Shown in the app under About.
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Where
+      options: [Screen lens, Camera mode, Settings or onboarding, Other]

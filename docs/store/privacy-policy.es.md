@@ -1,7 +1,7 @@
 # Política de privacidad de DaltonPick
 
 **Fecha de entrada en vigor:** [FECHA DE LANZAMIENTO]
-**Desarrollador:** [NOMBRE DEL DESARROLLADOR, p. ej. WCH Softworks]
+**Desarrollador:** WCH Softworks
 **Contacto:** [CORREO DE CONTACTO]
 **Código fuente:** https://github.com/WCH-Softworks/dalton-pick
 

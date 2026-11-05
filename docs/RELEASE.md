@@ -73,7 +73,7 @@ DaltonPick uses the Cloud project `daltonpick` and the service account `daltonpi
 
 All in Play Console. Draft answers are in `docs/store/`.
 
-- **App content → Privacy policy**: host `docs/store/privacy-policy.*.md` at a stable URL (e.g. GitHub Pages) and enter it. Fill the `[DEVELOPER NAME]`, `[CONTACT EMAIL]` and `[DATE OF RELEASE]` placeholders first.
+- **App content → Privacy policy**: host `docs/store/privacy-policy.*.md` at a stable URL (e.g. GitHub Pages) and enter it. Fill the `[CONTACT EMAIL]` and `[DATE OF RELEASE]` placeholders first.
 - **App content → Ads**: no ads.
 - **App content → App access**: all features work without an account. Add instructions for the reviewer: turn on DaltonPick in Settings → Accessibility, then pull the edge tab.
 - **App content → Content rating**: fill the questionnaire (utility app, no user content).

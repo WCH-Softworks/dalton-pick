@@ -62,10 +62,12 @@ The Play API can't upload an app's very first bundle, so the first one goes in t
 
 ### 5. Service account for automated uploads
 
-1. [Google Cloud Console](https://console.cloud.google.com/): create (or pick) a project, then **APIs & Services → Library → Google Play Android Developer API → Enable**.
-2. **IAM & Admin → Service accounts → Create**, e.g. `daltonpick-release`. No Cloud roles needed.
-3. On the new account: **Keys → Add key → JSON**. The file downloads once; put its contents in `PLAY_SERVICE_ACCOUNT_JSON` and then delete the file.
-4. Play Console → **Users and permissions → Invite new users** → the service account's email → **App permissions** → DaltonPick → allow *Release to testing tracks* (add *Release to production* later if you want CI to do that too) and *Manage store presence* (for listing uploads). Permissions can take a while to work the first time.
+DaltonPick uses the Cloud project `daltonpick` and the service account `daltonpick-play-publisher@daltonpick.iam.gserviceaccount.com`. To redo this from scratch:
+
+1. [Google Cloud Console](https://console.cloud.google.com/): create (or pick) a project, then **APIs & Services → Library → Google Play Android Developer API → Enable** (service name `androidpublisher.googleapis.com`; not the "Play Developer Reporting" or "Play Integrity" APIs). No billing needed.
+2. **IAM & Admin → Service accounts → Create**, e.g. `daltonpick-play-publisher`. Leave the role and user-access steps empty: no Cloud roles needed.
+3. On the new account: **Keys → Add key → Create new key → JSON**. The file downloads once and Google keeps no copy. GitHub secrets take text only, so open the file, paste its whole contents into `PLAY_SERVICE_ACCOUNT_JSON`, then delete the file. (A project inside a Google Workspace organization may block key creation with the `iam.disableServiceAccountKeyCreation` policy; personal accounts have no organization.)
+4. Play Console (all-apps view) → **Users and permissions → Invite new users** → the service account's email. Leave **Account permissions** empty. **App permissions → Add app** → DaltonPick → allow *Release apps to testing tracks* (add *Release to production* later if you want CI to do that too) and *Manage store presence* (for listing uploads). Play then forces on *View app information*, *View app quality information* and *Manage policy declarations* as dependencies; that's expected. No invite email needs accepting. Permissions can take a while (sometimes up to a day) to work the first time.
 
 ## Before the first release can leave internal testing
 

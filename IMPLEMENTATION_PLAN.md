@@ -146,7 +146,8 @@ From a pass over the lens, onboarding, Home, Settings and camera mode on the And
 - [ ] Publish the source on GitHub (WCH-Softworks, MIT). Optional F-Droid release.
 - [ ] Internal → closed testing (Play requires 12+ testers for 14 days on new personal developer accounts) → production.
 - [x] Release pipeline: R8 release build signed with an upload key from GitHub secrets, CI tests on every push, a hand-started Release workflow that uploads with Gradle Play Publisher (internal or closed track), store text in `app/src/main/play`. Play Console steps are in [docs/RELEASE.md](docs/RELEASE.md).
-- [ ] Signed release build checked on a phone (R8 can break things the debug build hides). Baseline profiles.
+- [x] Signed release build checked on a phone: installed from the internal track on the Samsung S22 (Android 16), lens and camera mode work with R8 (2026-11-05).
+- [ ] Baseline profiles.
 
 **Rough total: about 5–6 weeks for one developer** (including camera mode), plus Play review and closed-testing time.
 

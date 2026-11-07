@@ -10,8 +10,8 @@ kramdown:
 
 # Fill these in as they come to exist; the home pages show whichever is set.
 play_url: ""          # Play Store listing, once the app is public
-tester_group_url: ""  # Google Group testers join first
-tester_optin_url: ""  # Play "Become a tester" page for the closed track
+tester_group_url: "https://groups.google.com/g/daltonpick-testers"  # Google Group testers join first
+tester_optin_url: "https://play.google.com/apps/testing/com.wchsoftworks.daltonpick"  # Play "Become a tester" page for the closed track
 
 github_url: https://github.com/WCH-Softworks/dalton-pick
 issues_url: https://github.com/WCH-Softworks/dalton-pick/issues/new/choose

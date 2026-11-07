@@ -12,7 +12,6 @@ All drafts are in three languages: English (`en`), neutral Latin American Spanis
 
 ## Placeholders you must fill
 
-- `[CONTACT EMAIL]`, `[DATE OF RELEASE]` in the privacy policies.
 - The video link in `accessibility-declaration.md`.
 - Final screenshots and the feature graphic (not drafted here).
 

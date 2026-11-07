@@ -1,8 +1,8 @@
 # DaltonPick Privacy Policy
 
-**Effective date:** [DATE OF RELEASE]
+**Effective date:** November 7, 2026
 **Developer:** WCH Softworks
-**Contact:** [CONTACT EMAIL]
+**Contact:** bugs and suggestions on [GitHub Issues](https://github.com/WCH-Softworks/dalton-pick/issues); privacy questions to admin@willcaphir.com
 **Source code:** https://github.com/WCH-Softworks/dalton-pick
 
 
@@ -55,7 +55,7 @@ DaltonPick collects no personal data from anyone, including children. It is not 
 
 ## Your rights
 
-Because DaltonPick does not collect or hold personal data, there is nothing to access, correct, export or delete. Data protection laws such as the GDPR (EU), the LGPD (Brazil) and similar laws in Latin America give you rights over personal data; if you have a question about how those apply, write to the contact address above.
+Because DaltonPick does not collect or hold personal data, there is nothing to access, correct, export or delete. Data protection laws such as the GDPR (EU), the LGPD (Brazil) and similar laws in Latin America give you rights over personal data; if you have a question about how those apply, write to admin@willcaphir.com.
 
 ## Changes to this policy
 
@@ -63,4 +63,5 @@ If a future version of DaltonPick changes how it handles data, this page will be
 
 ## Contact
 
-[CONTACT EMAIL]
+- **Bugs, wrong color names and suggestions:** open an issue at https://github.com/WCH-Softworks/dalton-pick/issues (issues are public, so don't include personal information).
+- **Privacy questions or anything you'd rather not post publicly:** admin@willcaphir.com

@@ -11,6 +11,11 @@ object Links {
 
     const val APACHE_2 = "https://www.apache.org/licenses/LICENSE-2.0"
 
-    /** Until the policy is hosted on its own page (M6), link to the file in the repository. */
-    fun privacyPolicy(lang: Lang) = "$SOURCE/blob/main/docs/store/privacy-policy.${lang.tag}.md"
+    const val SITE = "https://wch-softworks.github.io/dalton-pick/"
+
+    /** The policy page on the GitHub Pages site (built from docs/store/privacy-policy.*.md). */
+    fun privacyPolicy(lang: Lang) = when (lang) {
+        Lang.EN -> "${SITE}privacy/"
+        else -> "$SITE${lang.tag}/privacy/"
+    }
 }

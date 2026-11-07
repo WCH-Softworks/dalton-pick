@@ -1,9 +1,9 @@
 # Política de privacidad de DaltonPick
 
-**Fecha de entrada en vigor:** 7 de noviembre de 2026
-**Desarrollador:** WCH Softworks
-**Contacto:** errores y sugerencias en [GitHub Issues](https://github.com/WCH-Softworks/dalton-pick/issues); preguntas sobre privacidad a admin@willcaphir.com
-**Código fuente:** https://github.com/WCH-Softworks/dalton-pick
+- **Fecha de entrada en vigor:** 7 de noviembre de 2026
+- **Desarrollador:** WCH Softworks
+- **Contacto:** errores y sugerencias en [GitHub Issues](https://github.com/WCH-Softworks/dalton-pick/issues); preguntas sobre privacidad a <admin@willcaphir.com>
+- **Código fuente:** <https://github.com/WCH-Softworks/dalton-pick>
 
 
 ## La versión corta
@@ -55,7 +55,7 @@ DaltonPick no recopila datos personales de nadie, incluidos los niños. No está
 
 ## Tus derechos
 
-Como DaltonPick no recopila ni conserva datos personales, no hay nada que consultar, corregir, exportar ni eliminar. Las leyes de protección de datos, como el RGPD (UE), la LGPD (Brasil) y las leyes similares de Latinoamérica, te dan derechos sobre tus datos personales; si tienes dudas sobre cómo se aplican, escribe a admin@willcaphir.com.
+Como DaltonPick no recopila ni conserva datos personales, no hay nada que consultar, corregir, exportar ni eliminar. Las leyes de protección de datos, como el RGPD (UE), la LGPD (Brasil) y las leyes similares de Latinoamérica, te dan derechos sobre tus datos personales; si tienes dudas sobre cómo se aplican, escribe a <admin@willcaphir.com>.
 
 ## Cambios en esta política
 
@@ -63,5 +63,5 @@ Si una versión futura de DaltonPick cambia la forma en que trata los datos, est
 
 ## Contacto
 
-- **Errores, nombres de color equivocados y sugerencias:** abre un issue en https://github.com/WCH-Softworks/dalton-pick/issues (los issues son públicos, así que no incluyas información personal).
-- **Preguntas sobre privacidad o algo que prefieras no publicar:** admin@willcaphir.com
+- **Errores, nombres de color equivocados y sugerencias:** abre un issue en <https://github.com/WCH-Softworks/dalton-pick/issues> (los issues son públicos, así que no incluyas información personal).
+- **Preguntas sobre privacidad o algo que prefieras no publicar:** <admin@willcaphir.com>

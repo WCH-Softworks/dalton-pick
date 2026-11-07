@@ -1,0 +1,46 @@
+{%- assign t = site.data.i18n[page.lang] | default: site.data.i18n.en -%}
+{%- assign langs = "en,es,pt-BR" | split: "," -%}
+{%- if page.ref == "privacy" %}{% assign sub = "privacy/" %}{% else %}{% assign sub = "" %}{% endif -%}
+<!DOCTYPE html>
+<html lang="{{ t.html_lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} · {% endif %}DaltonPick</title>
+  {%- if page.description %}<meta name="description" content="{{ page.description }}">{% endif %}
+  <link rel="icon" href="{{ '/assets/icon.svg' | relative_url }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+  {%- for l in langs %}
+  <link rel="alternate" hreflang="{{ l }}" href="{{ site.data.i18n[l].root | append: sub | absolute_url }}">
+  {%- endfor %}
+</head>
+<body>
+  <a class="skip" href="#main">{% if page.lang == "en" %}Skip to content{% elsif page.lang == "es" %}Saltar al contenido{% else %}Pular para o conteúdo{% endif %}</a>
+  <header class="top">
+    <a class="brand" href="{{ t.root | relative_url }}">
+      <span class="logo" aria-hidden="true"><img src="{{ '/assets/icon.svg' | relative_url }}" alt="" width="40" height="40"></span>
+      <span>DaltonPick</span>
+    </a>
+    <nav aria-label="{{ t.languages }}" class="langs">
+      <ul>
+      {%- for l in langs %}
+        {%- assign name_key = l | append: "_name" %}
+        <li><a href="{{ site.data.i18n[l].root | append: sub | relative_url }}" hreflang="{{ l }}" lang="{{ l }}"{% if l == page.lang %} aria-current="page"{% endif %}>{{ site.data.i18n[name_key] }}</a></li>
+      {%- endfor %}
+      </ul>
+    </nav>
+  </header>
+  <main id="main" class="{{ page.ref | default: 'page' }}">
+    {{ content }}
+  </main>
+  <footer class="bottom">
+    <ul>
+      <li><a href="{{ t.root | append: 'privacy/' | relative_url }}">{{ t.privacy }}</a></li>
+      <li><a href="{{ site.github_url }}">{{ t.source }}</a></li>
+      <li><a href="{{ site.issues_url }}">{{ t.report }}</a></li>
+      <li><a href="{{ site.kofi_url }}">{{ t.kofi }}</a></li>
+    </ul>
+    <p>{{ t.made_by }}</p>
+  </footer>
+</body>
+</html>

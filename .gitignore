@@ -17,3 +17,9 @@ captures/
 *.pem
 daltonpick-*.json
 *service-account*.json
+
+# Privacy pages copied in by site/build.sh
+site/privacy/
+site/es/privacy/
+site/pt-BR/privacy/
+site/_site/

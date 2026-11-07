@@ -7,6 +7,7 @@ Releases are built and uploaded by GitHub Actions only. Nothing secret lives in 
 | Release build (R8, resource shrinking, signing from env vars) | `app/build.gradle.kts`, `app/proguard-rules.pro` |
 | Uploads | [Gradle Play Publisher](https://github.com/Triple-T/gradle-play-publisher) 3.13 (build-time plugin; adds nothing to the app) |
 | Store text uploaded by GPP | `app/src/main/play/` (generated from `docs/store/listing.*.md` by `node docs/store/sync-play.js`) |
+| Website and privacy pages (GitHub Pages) | `site/`, published by `.github/workflows/pages.yml` to <https://wch-softworks.github.io/dalton-pick/>. Tester and Play links go in `site/_config.yml`. |
 | Tests + unsigned R8 build on every push | `.github/workflows/ci.yml` |
 | Signed AAB, optional upload | `.github/workflows/release.yml` (run by hand) |
 
@@ -73,7 +74,7 @@ DaltonPick uses the Cloud project `daltonpick` and the service account `daltonpi
 
 All in Play Console. Draft answers are in `docs/store/`.
 
-- **App content → Privacy policy**: enter `https://github.com/WCH-Softworks/dalton-pick/blob/main/docs/store/privacy-policy.en.md` (the same file the app's About screen links to, per language). When the policy changes, update its effective date.
+- **App content → Privacy policy**: enter `https://wch-softworks.github.io/dalton-pick/privacy/`. It is built from `docs/store/privacy-policy.*.md` (Spanish at `/es/privacy/`, Portuguese at `/pt-BR/privacy/`), and the app's About screen links to the same pages. When the policy changes, update its effective date; the Pages workflow republishes it on push.
 - **App content → Ads**: no ads.
 - **App content → App access**: all features work without an account. Add instructions for the reviewer: turn on DaltonPick in Settings → Accessibility, then pull the edge tab.
 - **App content → Content rating**: fill the questionnaire (utility app, no user content).

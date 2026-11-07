@@ -98,7 +98,7 @@ Jetpack Compose + Material 3 (AndroidX only), replacing the plain-views test scr
 - [x] Settings: edge tab (show, edge, auto-dim), lens (size, zoom, sample size), label (hex/RGB, haptics), language, developer (capture details, secure-screen test). The notification's Settings button opens this screen directly.
 - [x] Language: Android 13+ per-app language (System / English / Español / Português (Brasil)); the overlay label follows it too. Android 11–12 follow the system language, so the section is hidden there.
 - [x] Test chart: basic colors, six commonly confused pairs, and the red→green gradient, each with the name the lens should give.
-- [x] About: version, "free, no ads, never goes online", **Support on Ko-fi ☕** (opens the browser; `Links.KOFI` is the one constant), privacy policy, source code, open-source licenses (MIT text plus the AndroidX/Kotlin libraries under Apache 2.0, linked), and a pointer to Android's own Color correction. **Note:** the privacy link points at the file in the GitHub repo until the policy is hosted (M6).
+- [x] About: version, "free, no ads, never goes online", **Support on Ko-fi ☕** (opens the browser; `Links.KOFI` is the one constant), privacy policy, source code, open-source licenses (MIT text plus the AndroidX/Kotlin libraries under Apache 2.0, linked), and a pointer to Android's own Color correction. The privacy link opens the policy on the GitHub Pages site, in the app's language.
 - [x] Theming: light and dark, with wallpaper colors on Android 12+. States are spelled out ("✓ On" / "✕ Off"), never color alone. 200% font scale checked on Home, Settings and About.
 - [x] Launcher icon: adaptive lens-and-crosshair over a color wheel, with a monochrome layer for themed icons.
 - [ ] TalkBack walk-through of the main app. Screens use Compose's standard semantics (switches, radio groups, headings, state descriptions, swatch names), but a full pass with TalkBack running was not done: injected taps on the emulator don't drive TalkBack reliably. Do it by hand on a phone.
@@ -142,7 +142,8 @@ From a pass over the lens, onboarding, Home, Settings and camera mode on the And
 - [ ] Formal trademark search for "DaltonPick" (USPTO, INPI, EUIPO).
 - [ ] Native-speaker review of all strings and color names (en, es, pt-BR).
 - [ ] Store listing (en, es, pt-BR), screenshots, short demo video. Mention "free, no ads, no tracking" and the Ko-fi link.
-- [ ] Privacy policy page. Data Safety form ("no data collected"). Accessibility API declaration: Vision category, target users, and a video of the service being enabled and used. If rejected, appeal first, then fall back to MediaProjection.
+- [x] Privacy policy page: <https://wch-softworks.github.io/dalton-pick/privacy/> (also `/es/`, `/pt-BR/`), built from `docs/store/` with a small landing page in `site/` (2026-11-07).
+- [ ] Data Safety form ("no data collected"). Accessibility API declaration: Vision category, target users, and a video of the service being enabled and used. If rejected, appeal first, then fall back to MediaProjection.
 - [ ] Publish the source on GitHub (WCH-Softworks, MIT). Optional F-Droid release.
 - [ ] Internal → closed testing (Play requires 12+ testers for 14 days on new personal developer accounts) → production.
 - [x] Release pipeline: R8 release build signed with an upload key from GitHub secrets, CI tests on every push, a hand-started Release workflow that uploads with Gradle Play Publisher (internal or closed track), store text in `app/src/main/play`. Play Console steps are in [docs/RELEASE.md](docs/RELEASE.md).

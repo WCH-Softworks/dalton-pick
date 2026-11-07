@@ -44,3 +44,9 @@ h2 { font-size: 1.3rem; margin: 2rem 0 0.5rem; }
 
 .bottom { border-top: 1px solid var(--line); padding-top: 1rem; padding-bottom: 2rem; color: var(--muted); font-size: 0.9rem; }
 .bottom p { margin: 0.75rem 0 0; }
+
+/* Screenshots: three across on wide screens, a sideways scroll on phones. */
+.screens { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(11rem, 1fr); gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem; scroll-snap-type: x mandatory; }
+.screens figure { margin: 0; scroll-snap-align: start; }
+.screens img { display: block; width: 100%; height: auto; border-radius: 18px; border: 1px solid var(--line); }
+.screens figcaption { font-size: 0.9rem; color: var(--muted); margin-top: 0.5rem; }

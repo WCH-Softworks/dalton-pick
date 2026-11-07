@@ -11,6 +11,8 @@ description: O DaltonPick é uma lupa grátis para Android que diz o nome da cor
 
 <p class="example">Linhas de gráficos, legendas de mapas, roupas em lojas online, botões de jogos, luzes de status: <b>"Azul-marinho"</b>, <b>"Amarelo-mostarda"</b>, <b>"Rosa-seco"</b>, e também a família básica, como <b>"Azul"</b> ou <b>"Rosa"</b>.</p>
 
+{% include screens.html %}
+
 {% include get-it.html %}
 
 ## Como funciona

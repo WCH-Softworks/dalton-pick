@@ -11,6 +11,8 @@ description: DaltonPick es una lupa gratis para Android que dice el nombre del c
 
 <p class="example">Líneas de un gráfico, leyendas de mapas, ropa en una tienda en línea, botones de juegos, luces de estado: <b>"Azul marino"</b>, <b>"Amarillo mostaza"</b>, <b>"Rosa viejo"</b>, y también la familia básica, como <b>"Azul"</b> o <b>"Rosa"</b>.</p>
 
+{% include screens.html %}
+
 {% include get-it.html %}
 
 ## Cómo funciona

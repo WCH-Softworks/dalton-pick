@@ -11,6 +11,8 @@ description: DaltonPick is a free Android lens that names the color under your f
 
 <p class="example">Chart lines, map legends, clothes in a shopping app, game buttons, status lights: <b>"Navy blue"</b>, <b>"Mustard yellow"</b>, <b>"Dusty rose"</b>, plus the simple family, like <b>"Blue"</b> or <b>"Pink"</b>.</p>
 
+{% include screens.html %}
+
 {% include get-it.html %}
 
 ## How it works

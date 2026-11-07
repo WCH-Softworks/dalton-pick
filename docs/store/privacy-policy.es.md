@@ -5,7 +5,6 @@
 **Contacto:** [CORREO DE CONTACTO]
 **Código fuente:** https://github.com/WCH-Softworks/dalton-pick
 
-> BORRADOR en español latinoamericano neutro. Hay que completar los campos entre corchetes antes de publicar. Es un texto en lenguaje sencillo escrito para la aplicación tal como está en SPEC v0.4; no es asesoría legal. Pide una revisión si agregas alguna función que cambie lo que la aplicación hace con los datos.
 
 ## La versión corta
 
@@ -15,7 +14,7 @@ DaltonPick no recopila, guarda, comparte ni vende datos personales. No tiene el 
 
 DaltonPick muestra una lupa sobre otras aplicaciones y te dice el nombre del color que está bajo su mira. Para hacerlo necesita ver los píxeles de tu pantalla.
 
-- Cuando sacas la lupa, la aplicación toma **una captura de pantalla** usando el servicio de accesibilidad de Android.
+- Cuando sacas la lupa, la aplicación toma una captura de pantalla usando el servicio de accesibilidad de Android. Mientras la lupa sigue abierta, toma una nueva cuando la pantalla se desplaza o cambia, para que la lupa siga mostrando lo que realmente hay.
 - La captura se mantiene **solo en la memoria** de tu teléfono. Se usa para ampliar la zona bajo la lupa y para leer un pequeño grupo de píxeles y deducir el nombre del color.
 - La captura **nunca se guarda en el almacenamiento, nunca se registra, nunca se comparte y nunca se sube**. Se descarta cuando cierras la lupa.
 - DaltonPick no lee el texto de tu pantalla, tus mensajes, tus contraseñas ni lo que escribes. El servicio de accesibilidad está configurado para que no pueda leer el contenido de las ventanas.
@@ -23,7 +22,11 @@ DaltonPick muestra una lupa sobre otras aplicaciones y te dice el nombre del col
 
 ## El servicio de accesibilidad
 
-DaltonPick usa la API AccessibilityService de Android como herramienta de accesibilidad para personas con deficiencia en la visión de los colores. El servicio se usa únicamente para tomar la captura descrita arriba. No realiza acciones por ti, no toca nada y no vigila lo que haces en otras aplicaciones. Tú lo activas en los ajustes de Android (Ajustes → Accesibilidad) y puedes desactivarlo cuando quieras. Cuando está desactivado, la lupa deja de funcionar.
+DaltonPick usa la API AccessibilityService de Android como herramienta de accesibilidad para personas con deficiencia en la visión de los colores. El servicio se usa únicamente para tomar las capturas descritas arriba. Para saber cuándo tomar una nueva, se le avisa *de que* una pantalla se desplazó o cambió, y cuánto se desplazó; no recibe lo que hay en la pantalla. No realiza acciones por ti, no toca nada y no registra lo que haces en otras aplicaciones. Tú lo activas en los ajustes de Android (Ajustes → Accesibilidad) y puedes desactivarlo cuando quieras. Cuando está desactivado, la lupa deja de funcionar.
+
+## Modo grabación de pantalla (alternativo)
+
+Si no quieres activar el servicio de accesibilidad, DaltonPick puede usar la grabación de pantalla de Android. Android te pide permiso cada vez y muestra su propio indicador de grabación mientras funciona. Los cuadros grabados se usan en la memoria, igual que las capturas de arriba, y **nunca se guardan ni se envían a ningún lugar**. Puedes detenerla cuando quieras con el botón Detener de su notificación, desde la aplicación DaltonPick o con los controles de grabación del propio Android.
 
 ## Modo cámara
 
@@ -33,14 +36,13 @@ Si eliges el modo cámara, DaltonPick pide el permiso de la cámara en ese momen
 
 - **Mostrar sobre otras aplicaciones:** para dibujar la pestaña del borde y la lupa encima de otras aplicaciones.
 - **Notificaciones:** para mostrar una pequeña notificación permanente que te deja mostrar u ocultar la pestaña.
-- **Servicio en primer plano:** Android lo exige para una superposición que queda disponible.
-- **Iniciar con el sistema (opcional):** para restaurar la pestaña del borde después de reiniciar tu teléfono.
+- **Servicio en primer plano (grabación de pantalla):** Android lo exige mientras se usa el modo grabación de pantalla. No se usa con el servicio de accesibilidad.
 
 Ninguno de estos permisos le da a DaltonPick una forma de recopilar datos sobre ti.
 
 ## Qué se guarda en tu teléfono
 
-Tus preferencias (tamaño de la lupa, zoom, borde, idioma y similares) se guardan localmente en tu teléfono. No contienen información personal. Si tienes activada la copia de seguridad de Android, tu teléfono puede incluir estas preferencias en su copia de seguridad normal a tu cuenta de Google. [CONFIRMAR: la versión M0 permite copias de seguridad; si en la versión final pones `allowBackup="false"`, elimina esta oración.] DaltonPick no las envía a ningún lugar.
+Tus preferencias (tamaño de la lupa, zoom, borde, posición de la pestaña y similares, además de pequeños contadores, como si ya terminaste la introducción) se guardan localmente en tu teléfono. No contienen información personal. Si tienes activada la copia de seguridad de Android, tu teléfono puede incluir estas preferencias en su copia de seguridad normal a tu cuenta de Google. DaltonPick no las envía a ningún lugar.
 
 ## Terceros
 

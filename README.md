@@ -23,6 +23,8 @@ DaltonPick is open source so anyone can read and audit it, but it is **not open 
 | `colorengine/` | Pure Kotlin color naming: OKLab, curated palette with en/es/pt-BR names, hysteresis. No Android dependencies. |
 | `app/` | The Android app: edge tab, lens overlay, two screen-capture backends, camera mode, settings and onboarding. |
 | `docs/` | Testing guides, release steps, store and policy documents, research notes. |
+| `scripts/export-privacy.mjs` | Turns `docs/store/privacy-policy.*.md` into the privacy pages on [willcaphir.com/daltonpick](https://willcaphir.com/daltonpick/). Run `node scripts/export-privacy.mjs ../willcaphir` after a policy change, then push the willcaphir.com repo. |
+| `site/` | Redirect stubs from the old GitHub Pages site to willcaphir.com. Temporary. |
 
 ## Build
 

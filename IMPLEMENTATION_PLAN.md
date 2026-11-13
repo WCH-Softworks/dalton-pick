@@ -142,7 +142,7 @@ From a pass over the lens, onboarding, Home, Settings and camera mode on the And
 - [ ] Formal trademark search for "DaltonPick" (USPTO, INPI, EUIPO).
 - [ ] Native-speaker review of all strings and color names (en, es, pt-BR).
 - [ ] Store listing (en, es, pt-BR), screenshots, short demo video. Mention "free, no ads, no tracking" and the Ko-fi link.
-- [x] Privacy policy page: <https://wch-softworks.github.io/dalton-pick/privacy/> (also `/es/`, `/pt-BR/`), built from `docs/store/` with a small landing page in `site/` (2026-11-07).
+- [x] Privacy policy page: originally <https://wch-softworks.github.io/dalton-pick/privacy/> (also `/es/`, `/pt-BR/`), built from `docs/store/` with a small landing page in `site/` (2026-11-07). Moved to <https://willcaphir.com/daltonpick/privacy/> (2026-11-13); `site/` now only redirects there.
 - [ ] Data Safety form ("no data collected"). Accessibility API declaration: Vision category, target users, and a video of the service being enabled and used. If rejected, appeal first, then fall back to MediaProjection.
 - [ ] Publish the source on GitHub (WCH-Softworks, MIT). Optional F-Droid release.
 - [ ] Internal → closed testing (Play requires 12+ testers for 14 days on new personal developer accounts) → production.

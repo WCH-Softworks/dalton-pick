@@ -11,9 +11,9 @@ object Links {
 
     const val APACHE_2 = "https://www.apache.org/licenses/LICENSE-2.0"
 
-    const val SITE = "https://wch-softworks.github.io/dalton-pick/"
+    const val SITE = "https://willcaphir.com/daltonpick/"
 
-    /** The policy page on the GitHub Pages site (built from docs/store/privacy-policy.*.md). */
+    /** The policy page on willcaphir.com (generated from docs/store/privacy-policy.*.md by scripts/export-privacy.mjs). */
     fun privacyPolicy(lang: Lang) = when (lang) {
         Lang.EN -> "${SITE}privacy/"
         else -> "$SITE${lang.tag}/privacy/"
